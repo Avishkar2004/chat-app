@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
+import AuthPageLayout, {
+  errorBoxClass,
+  footerLinkClass,
+  inputClass,
+  labelClass,
+  primaryButtonClass,
+} from "../components/AuthPageLayout";
 
 export default function SignupPage() {
   const nav = useNavigate();
@@ -26,68 +33,59 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-md">
-      <h1 className="text-2xl font-semibold tracking-tight">Create account</h1>
-      <p className="mt-1 text-sm text-slate-400">
-        You’ll be signed in automatically after signup.
-      </p>
-
-      <form
-        onSubmit={onSubmit}
-        className="mt-6 space-y-4 rounded-xl border border-slate-800 bg-slate-900/40 p-5"
-      >
-        <label className="block">
-          <div className="text-sm text-slate-300">Email</div>
+    <AuthPageLayout
+      title="Create your account"
+      subtitle="You’ll be signed in automatically and can jump straight into the chat."
+    >
+      <form onSubmit={onSubmit} className="space-y-5">
+        <label className={labelClass}>
+          Email
           <input
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100 outline-none focus:border-indigo-500"
+            className={inputClass}
             autoComplete="email"
+            placeholder="you@example.com"
           />
         </label>
 
-        <label className="block">
-          <div className="text-sm text-slate-300">Username</div>
+        <label className={labelClass}>
+          Username
           <input
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100 outline-none focus:border-indigo-500"
+            className={inputClass}
             autoComplete="username"
+            placeholder="cool_dev"
           />
         </label>
 
-        <label className="block">
-          <div className="text-sm text-slate-300">Password (min 8 chars)</div>
+        <label className={labelClass}>
+          Password
+          <span className="font-normal text-slate-500"> (min 8 characters)</span>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100 outline-none focus:border-indigo-500"
+            className={inputClass}
             autoComplete="new-password"
+            placeholder="••••••••"
           />
         </label>
 
-        {error ? (
-          <div className="rounded-md border border-rose-900/60 bg-rose-950/40 px-3 py-2 text-sm text-rose-200">
-            {error}
-          </div>
-        ) : null}
+        {error ? <div className={errorBoxClass}>{error}</div> : null}
 
-        <button
-          disabled={submitting}
-          className="w-full rounded-md bg-indigo-600 px-3 py-2 font-medium hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-70"
-        >
+        <button type="submit" disabled={submitting} className={primaryButtonClass}>
           {submitting ? "Creating…" : "Create account"}
         </button>
 
-        <div className="text-center text-sm text-slate-400">
+        <p className="border-t border-slate-800/80 pt-6 text-center text-sm text-slate-500">
           Already have an account?{" "}
-          <Link className="text-indigo-300 hover:text-indigo-200" to="/login">
-            Log in
+          <Link className={footerLinkClass} to="/login">
+            Sign in
           </Link>
-        </div>
+        </p>
       </form>
-    </div>
+    </AuthPageLayout>
   );
 }
-

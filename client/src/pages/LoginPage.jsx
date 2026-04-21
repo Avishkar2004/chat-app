@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
+import AuthPageLayout, {
+  errorBoxClass,
+  footerLinkClass,
+  inputClass,
+  labelClass,
+  primaryButtonClass,
+} from "../components/AuthPageLayout";
 
 export default function LoginPage() {
   const nav = useNavigate();
@@ -25,58 +32,47 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-md">
-      <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
-      <p className="mt-1 text-sm text-slate-400">
-        Sign in to continue to the chat.
-      </p>
-
-      <form
-        onSubmit={onSubmit}
-        className="mt-6 space-y-4 rounded-xl border border-slate-800 bg-slate-900/40 p-5"
-      >
-        <label className="block">
-          <div className="text-sm text-slate-300">Email or username</div>
+    <AuthPageLayout
+      title="Welcome back"
+      subtitle="Sign in to pick up where you left off in your conversations."
+    >
+      <form onSubmit={onSubmit} className="space-y-5">
+        <label className={labelClass}>
+          Email or username
           <input
             value={emailOrUsername}
             onChange={(e) => setEmailOrUsername(e.target.value)}
-            className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100 outline-none focus:border-indigo-500"
+            className={inputClass}
             autoComplete="username"
+            placeholder="you@email.com or handle"
           />
         </label>
 
-        <label className="block">
-          <div className="text-sm text-slate-300">Password</div>
+        <label className={labelClass}>
+          Password
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100 outline-none focus:border-indigo-500"
+            className={inputClass}
             autoComplete="current-password"
+            placeholder="••••••••"
           />
         </label>
 
-        {error ? (
-          <div className="rounded-md border border-rose-900/60 bg-rose-950/40 px-3 py-2 text-sm text-rose-200">
-            {error}
-          </div>
-        ) : null}
+        {error ? <div className={errorBoxClass}>{error}</div> : null}
 
-        <button
-          disabled={submitting}
-          className="w-full rounded-md bg-indigo-600 px-3 py-2 font-medium hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-70"
-        >
+        <button type="submit" disabled={submitting} className={primaryButtonClass}>
           {submitting ? "Signing in…" : "Sign in"}
         </button>
 
-        <div className="text-center text-sm text-slate-400">
+        <p className="border-t border-slate-800/80 pt-6 text-center text-sm text-slate-500">
           Don’t have an account?{" "}
-          <Link className="text-indigo-300 hover:text-indigo-200" to="/signup">
-            Sign up
+          <Link className={footerLinkClass} to="/signup">
+            Create one
           </Link>
-        </div>
+        </p>
       </form>
-    </div>
+    </AuthPageLayout>
   );
 }
-
