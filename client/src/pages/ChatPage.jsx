@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
+import FriendsPanel from "../components/FriendsPanel";
 
 function initials(name = "?") {
   const cleaned = String(name).trim();
@@ -161,6 +162,8 @@ export default function ChatPage() {
             <li>This is UI-only; plug in sockets later</li>
           </ul>
         </div>
+
+        <FriendsPanel />
       </aside>
 
       <section className="overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900/40 backdrop-blur">
