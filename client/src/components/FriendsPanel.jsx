@@ -15,7 +15,11 @@ function avatarText(username) {
 export default function FriendsPanel() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [state, setState] = useState({ friends: [], incoming: [], outgoing: [] });
+  const [state, setState] = useState({
+    friends: [],
+    incoming: [],
+    outgoing: [],
+  });
   const [username, setUsername] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -41,7 +45,10 @@ export default function FriendsPanel() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const canSend = useMemo(() => normalizeHandle(username).length >= 3, [username]);
+  const canSend = useMemo(
+    () => normalizeHandle(username).length >= 3,
+    [username],
+  );
 
   async function sendRequest() {
     const u = normalizeHandle(username);
@@ -164,7 +171,9 @@ export default function FriendsPanel() {
                       <div className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-800 bg-slate-950 text-[10px] font-semibold text-slate-200">
                         {avatarText(u.username)}
                       </div>
-                      <div className="text-xs text-slate-200">@{u.username}</div>
+                      <div className="text-xs text-slate-200">
+                        @{u.username}
+                      </div>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <button
@@ -203,7 +212,9 @@ export default function FriendsPanel() {
                       <div className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-800 bg-slate-950 text-[10px] font-semibold text-slate-200">
                         {avatarText(u.username)}
                       </div>
-                      <div className="text-xs text-slate-200">@{u.username}</div>
+                      <div className="text-xs text-slate-200">
+                        @{u.username}
+                      </div>
                     </div>
                     <div className="text-[11px] text-slate-500">Pending</div>
                   </div>
@@ -227,7 +238,9 @@ export default function FriendsPanel() {
                       <div className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-800 bg-slate-950 text-[10px] font-semibold text-slate-200">
                         {avatarText(u.username)}
                       </div>
-                      <div className="text-xs text-slate-200">@{u.username}</div>
+                      <div className="text-xs text-slate-200">
+                        @{u.username}
+                      </div>
                     </div>
                     <button
                       onClick={() => remove(u.username)}
@@ -248,4 +261,3 @@ export default function FriendsPanel() {
     </div>
   );
 }
-
