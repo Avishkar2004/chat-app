@@ -11,7 +11,10 @@ function initials(name = "?") {
 
 function formatTime(ts) {
   try {
-    return new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    return new Date(ts).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   } catch {
     return "";
   }
@@ -30,9 +33,17 @@ export default function ChatPage() {
 
   const rooms = useMemo(
     () => [
-      { id: "general", name: "General", description: "Announcements + casual chat" },
+      {
+        id: "general",
+        name: "General",
+        description: "Announcements + casual chat",
+      },
       { id: "help", name: "Help", description: "Questions, answers, tips" },
-      { id: "build", name: "Build in public", description: "Ship updates & feedback" },
+      {
+        id: "build",
+        name: "Build in public",
+        description: "Ship updates & feedback",
+      },
     ],
     [],
   );
@@ -91,7 +102,11 @@ export default function ChatPage() {
   // Friends state
   const [friendsLoading, setFriendsLoading] = useState(true);
   const [friendsError, setFriendsError] = useState("");
-  const [friendsState, setFriendsState] = useState({ friends: [], incoming: [], outgoing: [] });
+  const [friendsState, setFriendsState] = useState({
+    friends: [],
+    incoming: [],
+    outgoing: [],
+  });
   const [friendUsername, setFriendUsername] = useState("");
   const [friendsSubmitting, setFriendsSubmitting] = useState(false);
   const [selectedFriend, setSelectedFriend] = useState(null); // {id, username}
@@ -103,7 +118,10 @@ export default function ChatPage() {
   const listRef = useRef(null);
 
   const roomMessages = useMemo(
-    () => messages.filter((m) => m.roomId === activeRoomId).sort((a, b) => a.ts - b.ts),
+    () =>
+      messages
+        .filter((m) => m.roomId === activeRoomId)
+        .sort((a, b) => a.ts - b.ts),
     [messages, activeRoomId],
   );
 
@@ -144,7 +162,8 @@ export default function ChatPage() {
       };
       setFriendsState(next);
       setSelectedFriend((cur) => {
-        if (cur && next.friends.some((f) => f.username === cur.username)) return cur;
+        if (cur && next.friends.some((f) => f.username === cur.username))
+          return cur;
         return next.friends[0] || null;
       });
     } catch (e) {
@@ -199,7 +218,10 @@ export default function ChatPage() {
     setFriendsSubmitting(true);
     setFriendsError("");
     try {
-      await api("/api/friends/request", { method: "POST", body: JSON.stringify({ username: u }) });
+      await api("/api/friends/request", {
+        method: "POST",
+        body: JSON.stringify({ username: u }),
+      });
       setFriendUsername("");
       await refreshFriends();
     } catch (e) {
@@ -213,7 +235,10 @@ export default function ChatPage() {
     setFriendsSubmitting(true);
     setFriendsError("");
     try {
-      await api("/api/friends/accept", { method: "POST", body: JSON.stringify({ username: u }) });
+      await api("/api/friends/accept", {
+        method: "POST",
+        body: JSON.stringify({ username: u }),
+      });
       await refreshFriends();
     } catch (e) {
       setFriendsError(e.message || "Failed to accept request");
@@ -242,7 +267,10 @@ export default function ChatPage() {
     setFriendsSubmitting(true);
     setFriendsError("");
     try {
-      await api("/api/friends/remove", { method: "POST", body: JSON.stringify({ username: u }) });
+      await api("/api/friends/remove", {
+        method: "POST",
+        body: JSON.stringify({ username: u }),
+      });
       setDmThreads((prev) => {
         const next = { ...prev };
         delete next[u];
@@ -315,10 +343,14 @@ export default function ChatPage() {
                     ].join(" ")}
                   >
                     <div className="flex items-center justify-between gap-3">
-                      <div className="font-medium text-slate-100">{room.name}</div>
+                      <div className="font-medium text-slate-100">
+                        {room.name}
+                      </div>
                       <div className="text-xs text-slate-400">#{room.id}</div>
                     </div>
-                    <div className="mt-0.5 text-xs text-slate-400">{room.description}</div>
+                    <div className="mt-0.5 text-xs text-slate-400">
+                      {room.description}
+                    </div>
                   </button>
                 );
               })}
@@ -334,7 +366,10 @@ export default function ChatPage() {
                 />
                 <button
                   onClick={sendFriendRequest}
-                  disabled={normalizeHandle(friendUsername).length < 3 || friendsSubmitting}
+                  disabled={
+                    normalizeHandle(friendUsername).length < 3 ||
+                    friendsSubmitting
+                  }
                   className="rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   Add
@@ -354,7 +389,9 @@ export default function ChatPage() {
                   {friendsState.incoming?.length ? (
                     <div className="rounded-xl border border-slate-800/80 bg-slate-950/30 p-3">
                       <div className="flex items-center justify-between">
-                        <div className="text-xs font-semibold text-slate-300">Requests</div>
+                        <div className="text-xs font-semibold text-slate-300">
+                          Requests
+                        </div>
                         <button
                           onClick={refreshFriends}
                           disabled={friendsSubmitting}
@@ -369,7 +406,9 @@ export default function ChatPage() {
                             key={u.id}
                             className="flex items-center justify-between gap-2 rounded-lg border border-slate-800/80 bg-slate-950/40 px-2.5 py-2"
                           >
-                            <div className="text-xs text-slate-200">@{u.username}</div>
+                            <div className="text-xs text-slate-200">
+                              @{u.username}
+                            </div>
                             <div className="flex items-center gap-1.5">
                               <button
                                 onClick={() => acceptFriend(u.username)}
@@ -399,7 +438,8 @@ export default function ChatPage() {
                     <div className="mt-2 space-y-1.5">
                       {friendsState.friends?.length ? (
                         friendsState.friends.map((f) => {
-                          const active = selectedFriend?.username === f.username;
+                          const active =
+                            selectedFriend?.username === f.username;
                           return (
                             <button
                               key={f.id}
@@ -435,7 +475,9 @@ export default function ChatPage() {
                           );
                         })
                       ) : (
-                        <div className="text-xs text-slate-500">No friends yet.</div>
+                        <div className="text-xs text-slate-500">
+                          No friends yet.
+                        </div>
                       )}
                     </div>
                   </div>
@@ -485,7 +527,9 @@ export default function ChatPage() {
           {tab === "friends" && !selectedFriend ? (
             <div className="grid h-full place-items-center">
               <div className="max-w-md text-center">
-                <div className="text-sm font-semibold text-slate-100">No friend selected</div>
+                <div className="text-sm font-semibold text-slate-100">
+                  No friend selected
+                </div>
                 <div className="mt-1 text-xs text-slate-400">
                   Select a friend on the left to start a direct message.
                 </div>
@@ -496,13 +540,16 @@ export default function ChatPage() {
               {(tab === "rooms" ? roomMessages : dmMessages).map((m) => (
                 <div
                   key={m.id}
-                  className={["flex items-end gap-3", m.mine ? "justify-end" : "justify-start"].join(
-                    " ",
-                  )}
+                  className={[
+                    "flex items-end gap-3",
+                    m.mine ? "justify-end" : "justify-start",
+                  ].join(" ")}
                 >
                   {!m.mine ? (
                     <div className="flex h-9 w-9 flex-none items-center justify-center rounded-full border border-slate-800 bg-slate-950 text-xs font-semibold text-slate-200">
-                      {initials(tab === "rooms" ? m.author : selectedFriend?.username)}
+                      {initials(
+                        tab === "rooms" ? m.author : selectedFriend?.username,
+                      )}
                     </div>
                   ) : null}
 
@@ -576,7 +623,11 @@ export default function ChatPage() {
               <div className="mt-1 flex items-center justify-between text-[11px] text-slate-500">
                 <span>Shift+Enter for new line</span>
                 <span>
-                  {(tab === "rooms" ? roomDraft.trim().length : dmDraft.trim().length)
+                  {(
+                    tab === "rooms"
+                      ? roomDraft.trim().length
+                      : dmDraft.trim().length
+                  )
                     ? `${tab === "rooms" ? roomDraft.trim().length : dmDraft.trim().length} chars`
                     : ""}
                 </span>
@@ -614,4 +665,3 @@ export default function ChatPage() {
     </div>
   );
 }
-
