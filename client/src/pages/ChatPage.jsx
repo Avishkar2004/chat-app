@@ -643,21 +643,48 @@ export default function ChatPage() {
               }
               aria-label="Send message"
               title="Send"
-              className="grid h-11 w-11 flex-none place-items-center rounded-xl border border-slate-800/80 bg-indigo-600 text-white shadow-sm transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:border-slate-800/80 disabled:bg-slate-950/40 disabled:text-slate-500"
+              className={[
+                "inline-flex h-11 flex-none items-center justify-center overflow-hidden rounded-xl border border-slate-800/80 bg-indigo-600 text-white shadow-sm transition-all duration-150 ease-out hover:bg-indigo-500 disabled:cursor-not-allowed disabled:border-slate-800/80 disabled:bg-slate-950/40 disabled:text-slate-500",
+                (tab === "rooms" ? roomDraft.trim() : selectedFriend && dmDraft.trim())
+                  ? "w-11 px-0"
+                  : "w-24 px-3",
+              ].join(" ")}
             >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-5 w-5"
-                aria-hidden="true"
-              >
-                <path d="M22 2L11 13" />
-                <path d="M22 2L15 22 11 13 2 9 22 2z" />
-              </svg>
+              {tab === "rooms" ? (
+                roomDraft.trim() ? (
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-5 w-5 animate-send-pop"
+                    aria-hidden="true"
+                  >
+                    <path d="M22 2L11 13" />
+                    <path d="M22 2L15 22 11 13 2 9 22 2z" />
+                  </svg>
+                ) : (
+                  <span className="animate-send-pop text-sm font-semibold">Send</span>
+                )
+              ) : selectedFriend && dmDraft.trim() ? (
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-5 w-5 animate-send-pop"
+                  aria-hidden="true"
+                >
+                  <path d="M22 2L11 13" />
+                  <path d="M22 2L15 22 11 13 2 9 22 2z" />
+                </svg>
+              ) : (
+                <span className="animate-send-pop text-sm font-semibold">Send</span>
+              )}
             </button>
           </div>
         </div>
