@@ -1,10 +1,12 @@
 import express from "express";
+import http from "http";
 import connectDB from "./config/db.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import authRouter from "./routes/auth.js";
 import friendsRouter from "./routes/friends.js";
 import morgan from "morgan"
+import { initSocket } from "./socket.js";
 const PORT = process.env.PORT || 8000
 const app = express();
 
@@ -30,7 +32,9 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth", authRouter);
 app.use("/api/friends", friendsRouter);
 
+const httpServer = http.createServer(app);
+initSocket(httpServer, { corsOrigin });
 
-app.listen(PORT, () => {
-  console.log(`Server is up on ${PORT}`)
-})
+httpServer.listen(PORT, () => {
+  console.log(`Server is up on ${PORT} (HTTP + Socket.IO)`);
+});

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../api";
 import { useAuth } from "../auth/AuthContext";
+import { io } from "socket.io-client";
 
 function initials(name = "?") {
   const cleaned = String(name).trim();
@@ -29,6 +30,8 @@ function normalizeHandle(value) {
 export default function ChatPage() {
   const { user } = useAuth();
   const me = user?.username ? `@${user.username}` : "@you";
+  const API_BASE =
+    process.env.REACT_APP_API_URL?.replace(/\/$/, "") || "http://localhost:8000";
   const [tab, setTab] = useState("rooms"); // "rooms" | "friends"
 
   const rooms = useMemo(
@@ -52,52 +55,17 @@ export default function ChatPage() {
   const activeRoom = rooms.find((r) => r.id === activeRoomId) ?? rooms[0];
 
   const [roomDraft, setRoomDraft] = useState("");
-  const [messages, setMessages] = useState(() => {
-    const now = Date.now();
-    return [
-      {
-        id: "m1",
-        roomId: "general",
-        author: "ChatApp",
-        handle: "@chatapp",
-        body: "Welcome! This is a polished UI shell — you can wire realtime later without changing the layout.",
-        ts: now - 1000 * 60 * 18,
-      },
-      {
-        id: "m2",
-        roomId: "general",
-        author: user?.username || "You",
-        handle: me,
-        body: "Nice — can I send messages here already?",
-        ts: now - 1000 * 60 * 16,
-        mine: true,
-      },
-      {
-        id: "m3",
-        roomId: "general",
-        author: "ChatApp",
-        handle: "@chatapp",
-        body: "Yep. It’s local-only for now: type below and hit Enter.",
-        ts: now - 1000 * 60 * 15,
-      },
-      {
-        id: "m4",
-        roomId: "help",
-        author: "ChatApp",
-        handle: "@chatapp",
-        body: "Ask anything here. Later you can connect this to your server/websocket layer.",
-        ts: now - 1000 * 60 * 10,
-      },
-      {
-        id: "m5",
-        roomId: "build",
-        author: "ChatApp",
-        handle: "@chatapp",
-        body: "Post your latest build update. Keep it short, ship often.",
-        ts: now - 1000 * 60 * 6,
-      },
-    ];
-  });
+  // Room messages come from Socket.IO (real-time).
+  const [roomMessagesByRoom, setRoomMessagesByRoom] = useState({});
+
+  // Socket.IO state for public rooms chat
+  const socketRef = useRef(null);
+  const activeRoomIdRef = useRef(activeRoomId);
+  const usernameRef = useRef(user?.username || "");
+  const typingTimeoutRef = useRef(null);
+
+  const [socketConnected, setSocketConnected] = useState(false);
+  const [typingUser, setTypingUser] = useState("");
 
   // Friends state
   const [friendsLoading, setFriendsLoading] = useState(true);
@@ -118,36 +86,141 @@ export default function ChatPage() {
   const listRef = useRef(null);
 
   const roomMessages = useMemo(
-    () =>
-      messages
-        .filter((m) => m.roomId === activeRoomId)
-        .sort((a, b) => a.ts - b.ts),
-    [messages, activeRoomId],
+    () => roomMessagesByRoom[activeRoomId] || [],
+    [roomMessagesByRoom, activeRoomId],
   );
 
   useEffect(() => {
+    activeRoomIdRef.current = activeRoomId;
+  }, [activeRoomId]);
+
+  useEffect(() => {
+    usernameRef.current = user?.username || "";
+  }, [user?.username]);
+
+  useEffect(() => {
+    const socket = io(API_BASE, {
+      transports: ["websocket"],
+      withCredentials: true,
+    });
+    socketRef.current = socket;
+
+    // Connection state (shows in the header).
+    socket.on("connect", () => {
+      setSocketConnected(true);
+    });
+
+    socket.on("disconnect", () => {
+      setSocketConnected(false);
+      setTypingUser("");
+    });
+
+    // Receive incoming messages from the server.
+    socket.on("message", (message) => {
+      if (!message || message.roomId !== activeRoomIdRef.current) return;
+
+      const mine = message.username === usernameRef.current;
+      setRoomMessagesByRoom((prev) => {
+        const list = prev[message.roomId] || [];
+        return {
+          ...prev,
+          [message.roomId]: [
+            ...list,
+            {
+              id: message.id,
+              roomId: message.roomId,
+              author: message.username,
+              body: message.body,
+              ts: message.ts,
+              mine,
+            },
+          ],
+        };
+      });
+    });
+
+    socket.on("typing", (payload) => {
+      if (!payload || payload.roomId !== activeRoomIdRef.current) return;
+      if (payload.username === usernameRef.current) return;
+
+      if (payload.isTyping) {
+        setTypingUser(payload.username);
+        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = setTimeout(() => {
+          setTypingUser((cur) => (cur === payload.username ? "" : cur));
+        }, 1200);
+      } else {
+        setTypingUser((cur) => (cur === payload.username ? "" : cur));
+      }
+    });
+
+    return () => {
+      try {
+        socket.disconnect();
+      } catch {
+        // ignore
+      }
+    };
+  }, [API_BASE]);
+
+  useEffect(() => {
+    if (tab !== "rooms") return;
+    if (!socketRef.current) return;
+    const safeUsername = usernameRef.current;
+    const safeRoomId = String(activeRoomId || "").trim();
+    if (!safeRoomId || !safeUsername) return;
+
+    setTypingUser("");
+    socketRef.current.emit("joinRoom", {
+      roomId: safeRoomId,
+      username: safeUsername,
+    });
+  }, [tab, activeRoomId, user?.username]);
+
+  useEffect(() => {
+    if (tab !== "rooms") return;
     const el = listRef.current;
     if (!el) return;
     el.scrollTop = el.scrollHeight;
-  }, [activeRoomId, roomMessages.length]);
+  }, [tab, activeRoomId, roomMessages.length]);
 
   function sendRoom() {
     const text = roomDraft.trim();
     if (!text) return;
-    const now = Date.now();
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: `m_${now}_${Math.random().toString(16).slice(2)}`,
-        roomId: activeRoomId,
-        author: user?.username || "You",
-        handle: me,
-        body: text,
-        ts: now,
-        mine: true,
-      },
-    ]);
+
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+
+    if (!socketRef.current || !socketRef.current.connected) return;
+    socketRef.current.emit("sendMessage", {
+      roomId: activeRoomId,
+      body: text,
+    });
+
+    socketRef.current.emit("typing", {
+      roomId: activeRoomId,
+      isTyping: false,
+    });
     setRoomDraft("");
+  }
+
+  function handleRoomDraftChange(nextValue) {
+    setRoomDraft(nextValue);
+
+    const socket = socketRef.current;
+    if (!socket || !socket.connected) return;
+
+    const roomId = activeRoomIdRef.current;
+    const isTypingNow = String(nextValue || "").trim().length > 0;
+
+    // Tell others in the room that the current user is typing.
+    socket.emit("typing", { roomId, isTyping: isTypingNow });
+
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    if (isTypingNow) {
+      typingTimeoutRef.current = setTimeout(() => {
+        socket.emit("typing", { roomId, isTyping: false });
+      }, 900);
+    }
   }
 
   async function refreshFriends() {
@@ -516,7 +589,13 @@ export default function ChatPage() {
           </div>
           <div className="hidden items-center gap-2 sm:flex">
             <div className="h-2 w-2 rounded-full bg-emerald-400/80" />
-            <div className="text-xs text-slate-400">Connected (mock)</div>
+            <div className="text-xs text-slate-400">
+              {socketConnected
+                ? typingUser
+                  ? `${typingUser} is typing…`
+                  : "Connected"
+                : "Disconnected"}
+            </div>
           </div>
         </div>
 
@@ -537,58 +616,75 @@ export default function ChatPage() {
             </div>
           ) : (
             <div className="space-y-3">
-              {(tab === "rooms" ? roomMessages : dmMessages).map((m) => (
-                <div
-                  key={m.id}
-                  className={[
-                    "flex items-end gap-3",
-                    m.mine ? "justify-end" : "justify-start",
-                  ].join(" ")}
-                >
-                  {!m.mine ? (
-                    <div className="flex h-9 w-9 flex-none items-center justify-center rounded-full border border-slate-800 bg-slate-950 text-xs font-semibold text-slate-200">
-                      {initials(
-                        tab === "rooms" ? m.author : selectedFriend?.username,
-                      )}
-                    </div>
-                  ) : null}
+              {(tab === "rooms" ? roomMessages : dmMessages).length ? (
+                (tab === "rooms" ? roomMessages : dmMessages).map((m) => (
+                  <div
+                    key={m.id}
+                    className={[
+                      "flex items-end gap-3",
+                      m.mine ? "justify-end" : "justify-start",
+                    ].join(" ")}
+                  >
+                    {!m.mine ? (
+                      <div className="flex h-9 w-9 flex-none items-center justify-center rounded-full border border-slate-800 bg-slate-950 text-xs font-semibold text-slate-200">
+                        {initials(
+                          tab === "rooms" ? m.author : selectedFriend?.username,
+                        )}
+                      </div>
+                    ) : null}
 
-                  <div className={m.mine ? "text-right" : ""}>
-                    <div
-                      className={[
-                        "mb-1 flex items-center gap-2 text-xs",
-                        m.mine ? "justify-end" : "",
-                      ].join(" ")}
-                    >
-                      <span className="font-medium text-slate-300">
-                        {m.mine
-                          ? me
-                          : tab === "rooms"
-                            ? m.author
-                            : `@${selectedFriend?.username}`}
-                      </span>
-                      <span className="text-slate-500">{formatTime(m.ts)}</span>
+                    <div className={m.mine ? "text-right" : ""}>
+                      <div
+                        className={[
+                          "mb-1 flex items-center gap-2 text-xs",
+                          m.mine ? "justify-end" : "",
+                        ].join(" ")}
+                      >
+                        <span className="font-medium text-slate-300">
+                          {m.mine
+                            ? me
+                            : tab === "rooms"
+                              ? m.author
+                              : `@${selectedFriend?.username}`}
+                        </span>
+                        <span className="text-slate-500">{formatTime(m.ts)}</span>
+                      </div>
+                      <div
+                        className={[
+                          "w-fit max-w-[85%] rounded-2xl border px-4 py-3 text-sm leading-relaxed shadow-sm break-words",
+                          m.mine
+                            ? "border-indigo-500/30 bg-indigo-500/15 text-slate-50 ml-auto"
+                            : "border-slate-800/80 bg-slate-950/40 text-slate-200",
+                        ].join(" ")}
+                        style={{ whiteSpace: "pre-wrap" }}
+                      >
+                        {m.body}
+                      </div>
                     </div>
-                    <div
-                      className={[
-                        "w-fit max-w-[85%] rounded-2xl border px-4 py-3 text-sm leading-relaxed shadow-sm break-words",
-                        m.mine
-                          ? "border-indigo-500/30 bg-indigo-500/15 text-slate-50 ml-auto"
-                          : "border-slate-800/80 bg-slate-950/40 text-slate-200",
-                      ].join(" ")}
-                      style={{ whiteSpace: "pre-wrap" }}
-                    >
-                      {m.body}
+
+                    {m.mine ? (
+                      <div className="flex h-9 w-9 flex-none items-center justify-center rounded-full border border-slate-800 bg-slate-950 text-xs font-semibold text-slate-200">
+                        {initials(user?.username || "You")}
+                      </div>
+                    ) : null}
+                  </div>
+                ))
+              ) : (
+                <div className="grid h-[200px] place-items-center">
+                  <div className="max-w-md text-center">
+                    <div className="text-sm font-semibold text-slate-100">
+                      {tab === "rooms" ? "No messages yet" : "No direct messages yet"}
+                    </div>
+                    <div className="mt-1 text-xs text-slate-400">
+                      {tab === "rooms"
+                        ? `Start chatting in #${activeRoom?.id}.`
+                        : selectedFriend
+                          ? `Say hi to @${selectedFriend.username}.`
+                          : "Select a friend to start chatting."}
                     </div>
                   </div>
-
-                  {m.mine ? (
-                    <div className="flex h-9 w-9 flex-none items-center justify-center rounded-full border border-slate-800 bg-slate-950 text-xs font-semibold text-slate-200">
-                      {initials(user?.username || "You")}
-                    </div>
-                  ) : null}
                 </div>
-              ))}
+              )}
             </div>
           )}
         </div>
@@ -598,11 +694,11 @@ export default function ChatPage() {
             <div className="flex-1 rounded-2xl border border-slate-800/80 bg-slate-950/40 px-3 py-2">
               <textarea
                 value={tab === "rooms" ? roomDraft : dmDraft}
-                onChange={(e) =>
-                  tab === "rooms"
-                    ? setRoomDraft(e.target.value)
-                    : setDmDraft(e.target.value)
-                }
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (tab === "rooms") handleRoomDraftChange(value);
+                  else setDmDraft(value);
+                }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
