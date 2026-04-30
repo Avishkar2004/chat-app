@@ -617,58 +617,96 @@ export default function ChatPage() {
           ) : (
             <div className="space-y-3">
               {(tab === "rooms" ? roomMessages : dmMessages).length ? (
-                (tab === "rooms" ? roomMessages : dmMessages).map((m) => (
-                  <div
-                    key={m.id}
-                    className={[
-                      "flex items-end gap-3",
-                      m.mine ? "justify-end" : "justify-start",
-                    ].join(" ")}
-                  >
-                    {!m.mine ? (
-                      <div className="flex h-9 w-9 flex-none items-center justify-center rounded-full border border-slate-800 bg-slate-950 text-xs font-semibold text-slate-200">
-                        {initials(
-                          tab === "rooms" ? m.author : selectedFriend?.username,
-                        )}
-                      </div>
-                    ) : null}
+                (tab === "rooms" ? roomMessages : dmMessages).map((m, idx, arr) => {
+                  const prev = arr[idx - 1];
+                  const within2Min =
+                    prev && typeof prev.ts === "number" && typeof m.ts === "number"
+                      ? m.ts - prev.ts < 1000 * 60 * 2
+                      : false;
+                  const sameSender =
+                    prev &&
+                    prev.mine === m.mine &&
+                    (tab === "rooms"
+                      ? prev.author === m.author
+                      : prev.mine
+                        ? true
+                        : true);
+                  const grouped = Boolean(prev && within2Min && sameSender);
+                  const showMeta = !grouped;
+                  const showAvatar = !m.mine && showMeta;
+                  const showMyAvatar = m.mine && showMeta;
 
-                    <div className={m.mine ? "text-right" : ""}>
+                  const displayName = m.mine
+                    ? me
+                    : tab === "rooms"
+                      ? `@${m.author}`
+                      : `@${selectedFriend?.username}`;
+
+                  return (
+                    <div
+                      key={m.id}
+                      className={[
+                        "flex items-end",
+                        grouped ? "-mt-2" : "",
+                        grouped ? "gap-3" : "gap-3",
+                        m.mine ? "justify-end" : "justify-start",
+                      ].join(" ")}
+                    >
+                      {!m.mine ? (
+                        <div className="w-9 flex-none">
+                          {showAvatar ? (
+                            <div className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-800/80 bg-gradient-to-b from-slate-950 to-slate-900 text-xs font-semibold text-slate-100 shadow-sm">
+                              {initials(tab === "rooms" ? m.author : selectedFriend?.username)}
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : null}
+
                       <div
                         className={[
-                          "mb-1 flex items-center gap-2 text-xs",
-                          m.mine ? "justify-end" : "",
+                          "min-w-0",
+                          "flex flex-col",
+                          m.mine ? "items-end text-right" : "items-start",
                         ].join(" ")}
                       >
-                        <span className="font-medium text-slate-300">
-                          {m.mine
-                            ? me
-                            : tab === "rooms"
-                              ? m.author
-                              : `@${selectedFriend?.username}`}
-                        </span>
-                        <span className="text-slate-500">{formatTime(m.ts)}</span>
+                        {showMeta ? (
+                          <div
+                            className={[
+                              "mb-1 flex items-center gap-2 text-[11px]",
+                              m.mine ? "justify-end" : "",
+                            ].join(" ")}
+                          >
+                            <span className="font-semibold text-slate-200">{displayName}</span>
+                            <span className="text-slate-500">•</span>
+                            <span className="text-slate-500">{formatTime(m.ts)}</span>
+                          </div>
+                        ) : null}
+
+                        <div
+                          className={[
+                            "group relative inline-flex max-w-[min(85%,36rem)] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm break-words whitespace-pre-wrap ring-1",
+                            grouped ? (m.mine ? "rounded-tr-lg" : "rounded-tl-lg") : "",
+                            m.mine
+                              ? "bg-gradient-to-br from-indigo-600/30 via-indigo-500/15 to-fuchsia-500/10 text-slate-50 ring-indigo-500/30 shadow-indigo-600/10"
+                              : "bg-slate-950/45 text-slate-100 ring-slate-800/80",
+                          ].join(" ")}
+                        >
+                          {m.body}
+                        </div>
                       </div>
-                      <div
-                        className={[
-                          "w-fit max-w-[85%] rounded-2xl border px-4 py-3 text-sm leading-relaxed shadow-sm break-words",
-                          m.mine
-                            ? "border-indigo-500/30 bg-indigo-500/15 text-slate-50 ml-auto"
-                            : "border-slate-800/80 bg-slate-950/40 text-slate-200",
-                        ].join(" ")}
-                        style={{ whiteSpace: "pre-wrap" }}
-                      >
-                        {m.body}
-                      </div>
+
+                      {m.mine ? (
+                        <div className="w-9 flex-none">
+                          {showMyAvatar ? (
+                            <div className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-800/80 bg-gradient-to-b from-slate-950 to-slate-900 text-xs font-semibold text-slate-100 shadow-sm">
+                              {initials(user?.username || "You")}
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : null}
                     </div>
-
-                    {m.mine ? (
-                      <div className="flex h-9 w-9 flex-none items-center justify-center rounded-full border border-slate-800 bg-slate-950 text-xs font-semibold text-slate-200">
-                        {initials(user?.username || "You")}
-                      </div>
-                    ) : null}
-                  </div>
-                ))
+                  );
+                })
               ) : (
                 <div className="grid h-[200px] place-items-center">
                   <div className="max-w-md text-center">
