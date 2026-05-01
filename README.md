@@ -1,6 +1,6 @@
 # ChatApp (React + Express + MongoDB)
 
-A simple chat app starter with **cookie-based authentication** (JWT in httpOnly cookies) and a protected “Chat” page.
+A simple chat app starter with **cookie-based authentication**and a protected “Chat” page.
 
 ## Project structure
 
