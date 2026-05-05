@@ -2,11 +2,239 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  html {
-    color-scheme: dark;
-  }
+/* -------------------------------------------------------------------------- */
+/*  Theme tokens                                                               */
+/*  Components keep using Tailwind class names like `bg-slate-950`,            */
+/*  `text-indigo-200`, etc. The values are remapped per theme via these vars. */
+/* -------------------------------------------------------------------------- */
 
+:root,
+[data-theme="midnight"] {
+  color-scheme: dark;
+
+  --c-slate-50: 248 250 252;
+  --c-slate-100: 241 245 249;
+  --c-slate-200: 226 232 240;
+  --c-slate-300: 203 213 225;
+  --c-slate-400: 148 163 184;
+  --c-slate-500: 100 116 139;
+  --c-slate-600: 71 85 105;
+  --c-slate-700: 51 65 85;
+  --c-slate-800: 30 41 59;
+  --c-slate-900: 15 23 42;
+  --c-slate-950: 2 6 23;
+
+  --c-indigo-200: 199 210 254;
+  --c-indigo-300: 165 180 252;
+  --c-indigo-400: 129 140 248;
+  --c-indigo-500: 99 102 241;
+  --c-indigo-600: 79 70 229;
+
+  --c-fuchsia-500: 217 70 239;
+  --c-fuchsia-600: 192 38 211;
+
+  --c-emerald-400: 52 211 153;
+  --c-emerald-500: 16 185 129;
+  --c-emerald-600: 5 150 105;
+
+  --c-rose-100: 255 228 230;
+  --c-rose-500: 244 63 94;
+  --c-rose-950: 76 5 25;
+
+  --c-blob-1: 99 102 241;
+  --c-blob-2: 192 38 211;
+  --c-glow: 99 102 241;
+}
+
+[data-theme="ocean"] {
+  color-scheme: dark;
+
+  --c-slate-50: 240 253 255;
+  --c-slate-100: 224 247 252;
+  --c-slate-200: 186 230 253;
+  --c-slate-300: 148 196 220;
+  --c-slate-400: 100 150 180;
+  --c-slate-500: 60 110 140;
+  --c-slate-600: 40 80 110;
+  --c-slate-700: 22 56 84;
+  --c-slate-800: 12 38 60;
+  --c-slate-900: 6 24 40;
+  --c-slate-950: 2 12 24;
+
+  --c-indigo-200: 165 243 252;
+  --c-indigo-300: 103 232 249;
+  --c-indigo-400: 34 211 238;
+  --c-indigo-500: 6 182 212;
+  --c-indigo-600: 8 145 178;
+
+  --c-fuchsia-500: 20 184 166;
+  --c-fuchsia-600: 13 148 136;
+
+  --c-emerald-400: 52 211 153;
+  --c-emerald-500: 16 185 129;
+  --c-emerald-600: 5 150 105;
+
+  --c-rose-100: 255 228 230;
+  --c-rose-500: 244 63 94;
+  --c-rose-950: 76 5 25;
+
+  --c-blob-1: 6 182 212;
+  --c-blob-2: 20 184 166;
+  --c-glow: 34 211 238;
+}
+
+[data-theme="forest"] {
+  color-scheme: dark;
+
+  --c-slate-50: 240 253 244;
+  --c-slate-100: 220 252 231;
+  --c-slate-200: 187 247 208;
+  --c-slate-300: 134 200 160;
+  --c-slate-400: 90 150 110;
+  --c-slate-500: 60 110 80;
+  --c-slate-600: 40 80 55;
+  --c-slate-700: 25 55 35;
+  --c-slate-800: 15 38 24;
+  --c-slate-900: 8 24 14;
+  --c-slate-950: 3 14 8;
+
+  --c-indigo-200: 167 243 208;
+  --c-indigo-300: 110 231 183;
+  --c-indigo-400: 52 211 153;
+  --c-indigo-500: 16 185 129;
+  --c-indigo-600: 5 150 105;
+
+  --c-fuchsia-500: 132 204 22;
+  --c-fuchsia-600: 101 163 13;
+
+  --c-emerald-400: 52 211 153;
+  --c-emerald-500: 16 185 129;
+  --c-emerald-600: 5 150 105;
+
+  --c-rose-100: 255 228 230;
+  --c-rose-500: 244 63 94;
+  --c-rose-950: 76 5 25;
+
+  --c-blob-1: 16 185 129;
+  --c-blob-2: 132 204 22;
+  --c-glow: 52 211 153;
+}
+
+[data-theme="sunset"] {
+  color-scheme: dark;
+
+  --c-slate-50: 254 252 232;
+  --c-slate-100: 254 240 220;
+  --c-slate-200: 240 220 196;
+  --c-slate-300: 200 180 156;
+  --c-slate-400: 150 130 110;
+  --c-slate-500: 110 90 75;
+  --c-slate-600: 75 60 50;
+  --c-slate-700: 55 42 32;
+  --c-slate-800: 38 28 22;
+  --c-slate-900: 24 18 14;
+  --c-slate-950: 14 10 8;
+
+  --c-indigo-200: 254 215 170;
+  --c-indigo-300: 253 186 116;
+  --c-indigo-400: 251 146 60;
+  --c-indigo-500: 249 115 22;
+  --c-indigo-600: 234 88 12;
+
+  --c-fuchsia-500: 244 63 94;
+  --c-fuchsia-600: 225 29 72;
+
+  --c-emerald-400: 52 211 153;
+  --c-emerald-500: 16 185 129;
+  --c-emerald-600: 5 150 105;
+
+  --c-rose-100: 255 228 230;
+  --c-rose-500: 244 63 94;
+  --c-rose-950: 76 5 25;
+
+  --c-blob-1: 249 115 22;
+  --c-blob-2: 244 63 94;
+  --c-glow: 251 146 60;
+}
+
+[data-theme="whatsapp"] {
+  color-scheme: dark;
+
+  --c-slate-50: 255 255 255;
+  --c-slate-100: 233 237 239;
+  --c-slate-200: 209 215 219;
+  --c-slate-300: 174 186 193;
+  --c-slate-400: 134 150 160;
+  --c-slate-500: 105 121 132;
+  --c-slate-600: 55 66 72;
+  --c-slate-700: 42 57 66;
+  --c-slate-800: 32 44 51;
+  --c-slate-900: 17 27 33;
+  --c-slate-950: 11 20 26;
+
+  --c-indigo-200: 6 207 156;
+  --c-indigo-300: 0 168 132;
+  --c-indigo-400: 0 168 132;
+  --c-indigo-500: 0 168 132;
+  --c-indigo-600: 0 128 105;
+
+  --c-fuchsia-500: 6 207 156;
+  --c-fuchsia-600: 0 168 132;
+
+  --c-emerald-400: 6 207 156;
+  --c-emerald-500: 0 168 132;
+  --c-emerald-600: 0 128 105;
+
+  --c-rose-100: 255 228 230;
+  --c-rose-500: 244 63 94;
+  --c-rose-950: 76 5 25;
+
+  --c-blob-1: 0 168 132;
+  --c-blob-2: 0 128 105;
+  --c-glow: 0 168 132;
+}
+
+[data-theme="daylight"] {
+  color-scheme: light;
+
+  /* Slate inverted so `bg-slate-950` is light and `text-slate-100` is dark. */
+  --c-slate-50: 30 41 59;
+  --c-slate-100: 15 23 42;
+  --c-slate-200: 30 41 59;
+  --c-slate-300: 51 65 85;
+  --c-slate-400: 71 85 105;
+  --c-slate-500: 100 116 139;
+  --c-slate-600: 148 163 184;
+  --c-slate-700: 203 213 225;
+  --c-slate-800: 226 232 240;
+  --c-slate-900: 241 245 249;
+  --c-slate-950: 248 250 252;
+
+  /* Indigo: lighter shades flipped to darker (for text on light tints);
+     500/600 stay vivid for solid buttons. */
+  --c-indigo-200: 49 46 129;
+  --c-indigo-300: 67 56 202;
+  --c-indigo-400: 79 70 229;
+  --c-indigo-500: 99 102 241;
+  --c-indigo-600: 79 70 229;
+
+  --c-fuchsia-500: 217 70 239;
+  --c-fuchsia-600: 162 28 175;
+
+  --c-emerald-400: 5 150 105;
+  --c-emerald-500: 5 150 105;
+  --c-emerald-600: 4 120 87;
+
+  --c-rose-100: 159 18 57;
+  --c-rose-500: 225 29 72;
+  --c-rose-950: 255 228 230;
+
+  --c-blob-1: 165 180 252;
+  --c-blob-2: 232 121 249;
+  --c-glow: 165 180 252;
+}
+
+@layer base {
   body {
     @apply bg-slate-950 text-slate-100 antialiased;
   }
@@ -17,7 +245,7 @@
     scrollbar-width: thin;
   }
   .scrollbar-thumb-slate {
-    scrollbar-color: rgb(51 65 85 / 0.9) transparent;
+    scrollbar-color: rgb(var(--c-slate-700) / 0.9) transparent;
   }
 
   @keyframes send-pop {

@@ -7,6 +7,7 @@ import authRouter from "./routes/auth.js";
 import friendsRouter from "./routes/friends.js";
 import morgan from "morgan"
 import { initSocket } from "./socket.js";
+import uploadsRouter from "./routes/uploads.js";
 const PORT = process.env.PORT || 8000
 const app = express();
 
@@ -29,8 +30,12 @@ app.get("/api/health", (req, res) => {
   res.json({ ok: true });
 });
 
+// Serve uploaded images/videos
+app.use("/uploads", express.static("uploads"));
+
 app.use("/api/auth", authRouter);
 app.use("/api/friends", friendsRouter);
+app.use("/api/uploads", uploadsRouter);
 
 const httpServer = http.createServer(app);
 initSocket(httpServer, { corsOrigin });

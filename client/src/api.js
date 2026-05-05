@@ -2,10 +2,13 @@ const API_BASE =
   process.env.REACT_APP_API_URL?.replace(/\/$/, "") || "http://localhost:8000";
 
 export async function api(path, options = {}) {
+  const isFormData =
+    typeof FormData !== "undefined" && options.body instanceof FormData;
+
   const res = await fetch(`${API_BASE}${path}`, {
     ...options,
     headers: {
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       ...(options.headers || {}),
     },
     credentials: "include",
