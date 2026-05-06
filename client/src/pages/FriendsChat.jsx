@@ -40,6 +40,7 @@ export default function FriendsChat({ onSwitchTab }) {
   const [draft, setDraft] = useState("");
   const [emojiOpen, setEmojiOpen] = useState(false);
   const fileInputRef = useRef(null);
+  const pdfInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [pendingAttachment, setPendingAttachment] = useState(null);
 
@@ -460,6 +461,21 @@ export default function FriendsChat({ onSwitchTab }) {
                               controls
                               className="max-h-64 w-auto rounded-xl ring-1 ring-white/10"
                             />
+                          ) : String(m.attachment.mime || "") === "application/pdf" ? (
+                            <a
+                              href={`${API_BASE}${m.attachment.url}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="flex items-center gap-3 rounded-xl border border-slate-800/80 bg-slate-950/30 px-3 py-2 text-sm text-slate-100 hover:bg-slate-950/60"
+                            >
+                              <div className="grid h-10 w-10 place-items-center rounded-lg bg-rose-500/15 text-rose-200 ring-1 ring-rose-500/20">
+                                PDF
+                              </div>
+                              <div className="min-w-0">
+                                <div className="truncate font-medium">Open PDF</div>
+                                <div className="text-xs text-slate-400">Tap to view</div>
+                              </div>
+                            </a>
                           ) : null}
                         </div>
                       ) : null}
@@ -509,20 +525,56 @@ export default function FriendsChat({ onSwitchTab }) {
                 </div>
               ) : null}
 
-              <textarea
-                value={draft}
-                onChange={(e) => onDraftChange(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    send();
+              <div className="flex items-end gap-2">
+                <button
+                  onClick={() => setEmojiOpen((v) => !v)}
+                  className="grid h-10 w-10 flex-none place-items-center rounded-xl border border-slate-800/80 bg-slate-950/30 text-slate-200 hover:bg-slate-950/60"
+                  title="Emoji"
+                  aria-label="Emoji"
+                >
+                  🙂
+                </button>
+
+                <textarea
+                  value={draft}
+                  onChange={(e) => onDraftChange(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      send();
+                    }
+                  }}
+                  rows={1}
+                  disabled={!selectedFriend}
+                  placeholder={
+                    selectedFriend
+                      ? `Message @${selectedFriend.username}`
+                      : "Select a friend to start chatting"
                   }
-                }}
-                rows={1}
-                disabled={!selectedFriend}
-                placeholder={selectedFriend ? `Message @${selectedFriend.username}` : "Select a friend to start chatting"}
-                className="max-h-36 w-full resize-none bg-transparent text-sm text-slate-100 outline-none placeholder:text-slate-600 disabled:opacity-70"
-              />
+                  className="max-h-36 w-full resize-none bg-transparent py-2 text-sm text-slate-100 outline-none placeholder:text-slate-600 disabled:opacity-70"
+                />
+
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading || !selectedFriend}
+                  className="grid h-10 w-10 flex-none place-items-center rounded-xl border border-slate-800/80 bg-slate-950/30 text-slate-200 hover:bg-slate-950/60 disabled:cursor-not-allowed disabled:opacity-60"
+                  title="Photo / Video"
+                  aria-label="Photo / Video"
+                >
+                  📎
+                </button>
+
+                <button
+                  onClick={() => pdfInputRef.current?.click()}
+                  disabled={uploading || !selectedFriend}
+                  className="grid h-10 w-10 flex-none place-items-center rounded-xl border border-slate-800/80 bg-slate-950/30 text-slate-200 hover:bg-slate-950/60 disabled:cursor-not-allowed disabled:opacity-60"
+                  title="PDF"
+                  aria-label="PDF"
+                >
+                  📄
+                </button>
+              </div>
+
               <div className="mt-1 flex items-center justify-between text-[11px] text-slate-500">
                 <span>Shift+Enter for new line</span>
                 <span>{draft.trim().length ? `${draft.trim().length} chars` : ""}</span>
@@ -542,55 +594,53 @@ export default function FriendsChat({ onSwitchTab }) {
               }}
             />
 
-            <div className="flex flex-none items-center gap-2">
-              <button
-                onClick={() => setEmojiOpen((v) => !v)}
-                className="grid h-11 w-11 place-items-center rounded-xl border border-slate-800/80 bg-slate-950/30 text-slate-200 hover:bg-slate-950/60"
-                title="Emoji"
-                aria-label="Emoji"
-              >
-                🙂
-              </button>
+            <input
+              ref={pdfInputRef}
+              type="file"
+              accept="application/pdf"
+              className="hidden"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                e.target.value = "";
+                if (!file) return;
+                await uploadAttachment(file);
+              }}
+            />
 
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading || !selectedFriend}
-                className="grid h-11 w-11 place-items-center rounded-xl border border-slate-800/80 bg-slate-950/30 text-slate-200 hover:bg-slate-950/60 disabled:cursor-not-allowed disabled:opacity-60"
-                title="Photo / Video"
-                aria-label="Photo / Video"
-              >
-                📎
-              </button>
-
-              <button
-                onClick={send}
-                disabled={!selectedFriend || (!draft.trim() && !pendingAttachment)}
-                aria-label="Send message"
-                title="Send"
-                className={[
-                  "inline-flex h-11 flex-none items-center justify-center overflow-hidden rounded-xl border border-slate-800/80 bg-indigo-600 text-white shadow-sm transition-all duration-150 ease-out hover:bg-indigo-500 disabled:cursor-not-allowed disabled:border-slate-800/80 disabled:bg-slate-950/40 disabled:text-slate-500",
-                  draft.trim() || pendingAttachment ? "w-11 px-0" : "w-24 px-3",
-                ].join(" ")}
-              >
-                {draft.trim() || pendingAttachment ? (
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-5 w-5"
-                    aria-hidden="true"
-                  >
-                    <path d="M22 2L11 13" />
-                    <path d="M22 2L15 22 11 13 2 9 22 2z" />
-                  </svg>
-                ) : (
-                  <span className="text-sm font-semibold">Send</span>
-                )}
-              </button>
-            </div>
+            <button
+              onClick={send}
+              disabled={!selectedFriend || (!draft.trim() && !pendingAttachment)}
+              aria-label={draft.trim() || pendingAttachment ? "Send message" : "Voice message"}
+              title={draft.trim() || pendingAttachment ? "Send" : "Voice"}
+              className="inline-flex h-11 w-11 flex-none items-center justify-center rounded-full bg-emerald-600 text-white shadow-sm transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:bg-slate-800/70 disabled:text-slate-500"
+            >
+              {draft.trim() || pendingAttachment ? (
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="h-5 w-5"
+                  aria-hidden="true"
+                >
+                  <path d="M2.01 21l20.99-9L2.01 3 2 10l15 2-15 2 .01 7z" />
+                </svg>
+              ) : (
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-5 w-5"
+                  aria-hidden="true"
+                >
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                  <path d="M12 19v4" />
+                  <path d="M8 23h8" />
+                </svg>
+              )}
+            </button>
           </div>
 
           {emojiOpen ? (

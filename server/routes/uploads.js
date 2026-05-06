@@ -28,14 +28,14 @@ const upload = multer({
   },
   fileFilter(_req, file, cb) {
     const type = String(file.mimetype || "");
-    const ok = type.startsWith("image/") || type.startsWith("video/");
-    cb(ok ? null : new Error("Only image/video allowed"), ok);
+    const ok = type.startsWith("image/") || type.startsWith("video/") || type === "application/pdf";
+    cb(ok ? null : new Error("Only image/video/pdf allowed"), ok);
   },
 });
 
 /**
  * POST /api/uploads
- * FormData: { file: <image|video> }
+ * FormData: { file: <image|video|pdf> }
  *
  * Returns: { url, mime, originalName }
  */
