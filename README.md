@@ -64,6 +64,7 @@ Base URL: `http://localhost:8000`
 Notes:
 - The server sets an httpOnly cookie named `token`.
 - The client uses `fetch(..., { credentials: "include" })` so cookies are sent.
+- Chat messages (rooms + DMs) are stored in MongoDB and reload when you open a room or friend chat (last 100 messages per conversation).
 
 ## Health check
 

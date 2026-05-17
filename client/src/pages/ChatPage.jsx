@@ -2,12 +2,15 @@ import React, { useState } from "react";
 import FriendsChat from "./FriendsChat";
 import RoomsChat from "./RoomsChat";
 
-export default function ChatPage() {
-  const [tab, setTab] = useState("rooms"); // "rooms" | "friends"
+const TABS = {
+  rooms: RoomsChat,
+  friends: FriendsChat,
+};
 
-  return tab === "friends" ? (
-    <FriendsChat onSwitchTab={setTab} />
-  ) : (
-    <RoomsChat onSwitchTab={setTab} />
-  );
+/** Main chat screen: switch between public rooms and friend DMs. */
+export default function ChatPage() {
+  const [tab, setTab] = useState("rooms");
+  const View = TABS[tab] ?? RoomsChat;
+
+  return <View onSwitchTab={setTab} />;
 }
