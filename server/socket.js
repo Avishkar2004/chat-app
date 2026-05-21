@@ -4,6 +4,7 @@ import User from "./models/User.js";
 import {
   getDmHistory,
   getRoomHistory,
+  markDmRead,
   saveDmMessage,
   saveRoomMessage,
 } from "./services/messages.js";
@@ -104,6 +105,15 @@ export function initSocket(httpServer, { corsOrigin }) {
           messages: history,
         });
 
+        const read = await markDmRead(pair.room, pair.me.username);
+        if (read) {
+          io.to(pair.room).emit("dmReadReceipt", {
+            readBy: pair.me.username,
+            messageIds: read.messageIds,
+            readAt: read.readAt,
+          });
+        }
+
         io.to(pair.room).emit("dmUserJoined", {
           roomId: pair.room,
           username: pair.me.username,
@@ -131,6 +141,24 @@ export function initSocket(httpServer, { corsOrigin }) {
           attachment: safeAttachment,
         });
         io.to(pair.room).emit("dmMessage", message);
+      } catch {
+        // ignore
+      }
+    });
+
+    socket.on("dmMarkRead", async ({ friendUsername } = {}) => {
+      try {
+        const pair = await loadFriendPair(socket.data.userId, friendUsername);
+        if (!pair) return;
+
+        const read = await markDmRead(pair.room, pair.me.username);
+        if (!read) return;
+
+        io.to(pair.room).emit("dmReadReceipt", {
+          readBy: pair.me.username,
+          messageIds: read.messageIds,
+          readAt: read.readAt,
+        });
       } catch {
         // ignore
       }

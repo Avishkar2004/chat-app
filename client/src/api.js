@@ -32,4 +32,3 @@ export async function api(path, options = {}) {
 
   return body;
 }
-

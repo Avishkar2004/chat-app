@@ -20,6 +20,7 @@ export default function MessageList({
   peerUsername,
   empty,
   requirePeer,
+  showReadStatus = false,
 }) {
   const meLabel = displayHandle(myUsername) || "@you";
 
@@ -47,6 +48,7 @@ export default function MessageList({
               message={m}
               authorLabel={m.mine ? meLabel : displayHandle(m.author || peerUsername)}
               avatarName={m.mine ? myUsername : m.author || peerUsername}
+              showReadStatus={showReadStatus}
             />
           ))}
         </div>

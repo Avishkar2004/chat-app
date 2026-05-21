@@ -1,9 +1,15 @@
 import React from "react";
 import { initials } from "../../lib/format";
 import MessageAttachment from "./MessageAttachment";
+import MessageReadStatus from "./MessageReadStatus";
 
-export default function MessageBubble({ message, authorLabel, avatarName }) {
-  const { mine, body, attachment, ts } = message;
+export default function MessageBubble({
+  message,
+  authorLabel,
+  avatarName,
+  showReadStatus = false,
+}) {
+  const { mine, body, attachment, ts, read } = message;
 
   return (
     <div className={["flex items-end gap-3", mine ? "justify-end" : "justify-start"].join(" ")}>
@@ -18,6 +24,12 @@ export default function MessageBubble({ message, authorLabel, avatarName }) {
           <span className="font-semibold text-slate-200">{authorLabel}</span>
           <span className="text-slate-500">•</span>
           <Time ts={ts} />
+          {showReadStatus && mine ? (
+            <>
+              <span className="text-slate-500">•</span>
+              <MessageReadStatus read={Boolean(read)} />
+            </>
+          ) : null}
         </div>
         <div
           className={[

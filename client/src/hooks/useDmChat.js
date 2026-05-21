@@ -4,14 +4,18 @@ import { appendMessage } from "../lib/messages";
 function toUiMessage(raw, myUsername) {
   const mine = raw.username === myUsername;
   const friendKey = mine ? raw.to : raw.username;
-  return { ui: {
-    id: raw.id,
-    author: raw.username,
-    body: raw.body || "",
-    attachment: raw.attachment || null,
-    ts: raw.ts,
-    mine,
-  }, friendKey };
+  return {
+    ui: {
+      id: raw.id,
+      author: raw.username,
+      body: raw.body || "",
+      attachment: raw.attachment || null,
+      ts: raw.ts,
+      mine,
+      read: Boolean(raw.readAt),
+    },
+    friendKey,
+  };
 }
 
 /** DM threads, typing, and Socket.IO events for friend conversations. */
@@ -49,6 +53,7 @@ export function useDmChat({ socketRef, username, selectedFriend }) {
           return ui;
         }),
       }));
+      markRead();
     };
 
     const onDmMessage = (message) => {
@@ -58,6 +63,25 @@ export function useDmChat({ socketRef, username, selectedFriend }) {
         ...prev,
         [friendKey]: appendMessage(prev[friendKey] || [], ui),
       }));
+
+      if (!ui.mine) {
+        markRead();
+      }
+    };
+
+    const onDmReadReceipt = ({ readBy, messageIds, readAt }) => {
+      if (!readBy || !messageIds?.length) return;
+      const ids = new Set(messageIds);
+      setThreads((prev) => {
+        const list = prev[readBy];
+        if (!list?.length) return prev;
+        return {
+          ...prev,
+          [readBy]: list.map((m) =>
+            m.mine && ids.has(m.id) ? { ...m, read: true, readAt } : m,
+          ),
+        };
+      });
     };
 
     const onDmTyping = (payload) => {
@@ -72,16 +96,25 @@ export function useDmChat({ socketRef, username, selectedFriend }) {
 
     socket.on("dmHistory", onDmHistory);
     socket.on("dmMessage", onDmMessage);
+    socket.on("dmReadReceipt", onDmReadReceipt);
     socket.on("dmTyping", onDmTyping);
     socket.on("disconnect", onDisconnect);
 
     return () => {
       socket.off("dmHistory", onDmHistory);
       socket.off("dmMessage", onDmMessage);
+      socket.off("dmReadReceipt", onDmReadReceipt);
       socket.off("dmTyping", onDmTyping);
       socket.off("disconnect", onDisconnect);
     };
   }, [socketRef]);
+
+  function markRead() {
+    const socket = socketRef.current;
+    const friend = selectedFriendRef.current;
+    if (!socket?.connected || !friend?.username) return;
+    socket.emit("dmMarkRead", { friendUsername: friend.username });
+  }
 
   function joinActiveDm() {
     const socket = socketRef.current;

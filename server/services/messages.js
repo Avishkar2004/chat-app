@@ -11,7 +11,40 @@ export function serializeMessage(doc) {
     to: doc.to || undefined,
     body: doc.body || "",
     attachment: doc.attachment || null,
+    readAt: doc.readAt ? new Date(doc.readAt).getTime() : null,
     ts: createdAt.getTime(),
+  };
+}
+
+/** Mark DM messages sent to viewerUsername as read (for read receipts). */
+export async function markDmRead(dmRoomId, viewerUsername) {
+  const readAt = new Date();
+  const result = await Message.updateMany(
+    {
+      kind: "dm",
+      roomId: dmRoomId,
+      to: viewerUsername,
+      username: { $ne: viewerUsername },
+      readAt: null,
+    },
+    { $set: { readAt } },
+  );
+
+  if (!result.modifiedCount) return null;
+
+  const docs = await Message.find({
+    kind: "dm",
+    roomId: dmRoomId,
+    to: viewerUsername,
+    username: { $ne: viewerUsername },
+    readAt,
+  })
+    .select("_id username")
+    .lean();
+
+  return {
+    readAt: readAt.getTime(),
+    messageIds: docs.map((d) => String(d._id)),
   };
 }
 

@@ -86,6 +86,7 @@ export default function FriendsChat({ onSwitchTab }) {
         messages={dmChat.messages}
         myUsername={user?.username}
         peerUsername={friend?.username}
+        showReadStatus
         requirePeer
         empty={{
           title: "No messages yet",

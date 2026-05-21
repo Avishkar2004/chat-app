@@ -16,6 +16,7 @@ const messageSchema = new mongoose.Schema(
     to: { type: String, default: null },
     body: { type: String, default: "" },
     attachment: { type: attachmentSchema, default: null },
+    readAt: { type: Date, default: null },
   },
   { timestamps: true },
 );
