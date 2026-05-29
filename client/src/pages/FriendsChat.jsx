@@ -55,6 +55,9 @@ export default function FriendsChat({ onSwitchTab }) {
           <FriendsSidebar
             loading={friends.loading}
             error={friends.error}
+            notice={friends.notice}
+            onDismissError={friends.dismissError}
+            onDismissNotice={friends.dismissNotice}
             submitting={friends.submitting}
             state={friends.state}
             addUsername={friends.addUsername}
@@ -63,6 +66,7 @@ export default function FriendsChat({ onSwitchTab }) {
             onRequest={friends.requestFriend}
             onAccept={friends.accept}
             onDecline={friends.decline}
+            onCancel={friends.cancel}
             onRemove={(username) =>
               friends.remove(username, (u) => dmChat.clearThread(u))
             }
@@ -77,6 +81,7 @@ export default function FriendsChat({ onSwitchTab }) {
         subtitle={
           friend ? "Direct messages" : "Pick a friend to start chatting."
         }
+        avatarName={friend?.username}
         connected={connected}
         typingUser={dmChat.typingUser}
       />

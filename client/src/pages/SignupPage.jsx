@@ -2,11 +2,14 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import AuthPageLayout, {
+  AuthField,
+  PasswordField,
+  PasswordStrength,
+  SubmitButton,
+  MailIcon,
+  UserIcon,
   errorBoxClass,
   footerLinkClass,
-  inputClass,
-  labelClass,
-  primaryButtonClass,
 } from "../components/AuthPageLayout";
 
 export default function SignupPage() {
@@ -37,47 +40,48 @@ export default function SignupPage() {
       title="Create your account"
       subtitle="You’ll be signed in automatically and can jump straight into the chat."
     >
-      <form onSubmit={onSubmit} className="space-y-5">
-        <label className={labelClass}>
-          Email
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className={inputClass}
-            autoComplete="email"
-            placeholder="you@example.com"
-          />
-        </label>
+      <form onSubmit={onSubmit} className="space-y-5" noValidate>
+        <AuthField
+          label="Email"
+          icon={MailIcon}
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          autoComplete="email"
+          autoFocus
+          placeholder="you@example.com"
+        />
 
-        <label className={labelClass}>
-          Username
-          <input
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className={inputClass}
-            autoComplete="username"
-            placeholder="cool_dev"
-          />
-        </label>
+        <AuthField
+          label="Username"
+          icon={UserIcon}
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          autoComplete="username"
+          placeholder="cool_dev"
+        />
 
-        <label className={labelClass}>
-          Password
-          <span className="font-normal text-slate-500"> (min 8 characters)</span>
-          <input
-            type="password"
+        <div>
+          <PasswordField
+            label="Password"
+            hint="(min 8 characters)"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className={inputClass}
             autoComplete="new-password"
             placeholder="••••••••"
           />
-        </label>
+          <PasswordStrength value={password} />
+        </div>
 
-        {error ? <div className={errorBoxClass}>{error}</div> : null}
+        {error ? (
+          <div className={errorBoxClass} role="alert">
+            {error}
+          </div>
+        ) : null}
 
-        <button type="submit" disabled={submitting} className={primaryButtonClass}>
-          {submitting ? "Creating…" : "Create account"}
-        </button>
+        <SubmitButton loading={submitting} loadingText="Creating…">
+          Create account
+        </SubmitButton>
 
         <p className="border-t border-slate-800/80 pt-6 text-center text-sm text-slate-500">
           Already have an account?{" "}

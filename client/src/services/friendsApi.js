@@ -30,6 +30,13 @@ export function declineFriendRequest(username) {
   });
 }
 
+export function cancelFriendRequest(username) {
+  return api("/api/friends/cancel", {
+    method: "POST",
+    body: JSON.stringify({ username }),
+  });
+}
+
 export function removeFriend(username) {
   return api("/api/friends/remove", {
     method: "POST",

@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   acceptFriendRequest,
+  cancelFriendRequest,
   declineFriendRequest,
   fetchFriendsState,
   removeFriend,
   sendFriendRequest,
 } from "../services/friendsApi";
-import { normalizeHandle } from "../lib/usernames";
+import { displayHandle, normalizeHandle } from "../lib/usernames";
+
+const MIN_USERNAME = 3;
 
 /**
  * Friends list, requests, and API actions.
@@ -15,6 +18,7 @@ import { normalizeHandle } from "../lib/usernames";
 export function useFriends() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [addUsername, setAddUsername] = useState("");
   const [state, setState] = useState({ friends: [], incoming: [], outgoing: [] });
@@ -46,6 +50,7 @@ export function useFriends() {
   async function runAction(action) {
     setSubmitting(true);
     setError("");
+    setNotice("");
     try {
       await action();
       await refresh();
@@ -58,19 +63,40 @@ export function useFriends() {
 
   function requestFriend() {
     const username = normalizeHandle(addUsername);
-    if (username.length < 3) return;
+    setNotice("");
+    if (username.length < MIN_USERNAME) {
+      setError(`Enter a username with at least ${MIN_USERNAME} characters.`);
+      return;
+    }
+    // Friendly client-side guards before hitting the server.
+    if (state.friends.some((f) => f.username === username)) {
+      setError(`You’re already friends with ${displayHandle(username)}.`);
+      return;
+    }
+    if (state.outgoing.some((u) => u.username === username)) {
+      setError(`Request to ${displayHandle(username)} is already pending.`);
+      return;
+    }
     return runAction(async () => {
       await sendFriendRequest(username);
       setAddUsername("");
+      setNotice(`Friend request sent to ${displayHandle(username)}.`);
     });
   }
 
   function accept(username) {
-    return runAction(() => acceptFriendRequest(username));
+    return runAction(async () => {
+      await acceptFriendRequest(username);
+      setNotice(`You’re now friends with ${displayHandle(username)}.`);
+    });
   }
 
   function decline(username) {
     return runAction(() => declineFriendRequest(username));
+  }
+
+  function cancel(username) {
+    return runAction(() => cancelFriendRequest(username));
   }
 
   function remove(username, onRemoved) {
@@ -83,6 +109,9 @@ export function useFriends() {
   return {
     loading,
     error,
+    notice,
+    dismissError: () => setError(""),
+    dismissNotice: () => setNotice(""),
     submitting,
     state,
     addUsername,
@@ -93,7 +122,8 @@ export function useFriends() {
     requestFriend,
     accept,
     decline,
+    cancel,
     remove,
-    canRequest: normalizeHandle(addUsername).length >= 3,
+    canRequest: normalizeHandle(addUsername).length >= MIN_USERNAME,
   };
 }

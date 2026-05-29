@@ -146,6 +146,26 @@ export async function declineFriendRequest(req, res) {
   }
 }
 
+export async function cancelFriendRequest(req, res) {
+  try {
+    const { username } = req.body ?? {};
+    const other = await getUserByUsername(username);
+    if (!other) return res.status(404).json({ message: "User not found" });
+
+    const meId = req.user._id;
+    const otherId = other._id;
+
+    await Promise.all([
+      User.updateOne({ _id: meId }, { $pull: { friendRequestsOutgoing: otherId } }),
+      User.updateOne({ _id: otherId }, { $pull: { friendRequestsIncoming: meId } }),
+    ]);
+
+    return res.json({ ok: true });
+  } catch (err) {
+    return res.status(500).json({ message: "Server error" });
+  }
+}
+
 export async function removeFriend(req, res) {
   try {
     const { username } = req.body ?? {};

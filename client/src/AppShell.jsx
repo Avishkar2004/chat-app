@@ -2,6 +2,9 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "./auth/AuthContext";
 import { THEMES, useTheme } from "./theme/ThemeContext";
+import Avatar from "./components/ui/Avatar";
+import { ChatIcon, ChevronDownIcon, LogoutIcon, PaletteIcon } from "./components/ui/icons";
+import { displayHandle } from "./lib/usernames";
 
 export default function AppShell({ children }) {
   const { user, logout } = useAuth();
@@ -24,38 +27,46 @@ export default function AppShell({ children }) {
         />
       </div>
 
-      <header className="border-b border-slate-800/80 bg-slate-950/30 backdrop-blur">
+      <header className="sticky top-0 z-30 border-b border-slate-800/80 bg-slate-950/60 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
-          <Link to="/" className="font-semibold tracking-tight">
-            <span className="rounded-md bg-indigo-500/15 px-2 py-1 text-indigo-200">
+          <Link to="/" className="group flex items-center gap-2.5">
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 text-white shadow-lg shadow-indigo-600/25 ring-1 ring-white/15">
+              <ChatIcon className="h-5 w-5" />
+            </span>
+            <span className="text-lg font-bold tracking-tight text-slate-100">
               ChatApp
             </span>
           </Link>
+
           <div className="flex items-center gap-2 text-sm sm:gap-3">
             <ThemePicker theme={theme} setTheme={setTheme} />
             {user ? (
-              <>
-                <span className="hidden text-slate-300 sm:inline">
-                  @{user.username}
-                </span>
+              <div className="flex items-center gap-2.5">
+                <div className="hidden items-center gap-2 rounded-full border border-slate-800/80 bg-slate-950/40 py-1 pl-1 pr-3 sm:flex">
+                  <Avatar name={user.username} size="xs" />
+                  <span className="text-sm font-medium text-slate-200">
+                    {displayHandle(user.username)}
+                  </span>
+                </div>
                 <button
                   onClick={logout}
-                  className="rounded-md border border-slate-800/80 bg-slate-950/40 px-3 py-1.5 hover:bg-slate-950/70"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-800/80 bg-slate-950/40 px-3 py-1.5 text-slate-200 transition hover:border-rose-500/40 hover:bg-rose-950/30 hover:text-rose-200"
                 >
-                  Logout
+                  <LogoutIcon className="h-4 w-4" />
+                  <span className="hidden sm:inline">Logout</span>
                 </button>
-              </>
+              </div>
             ) : (
               <>
                 <Link
                   to="/login"
-                  className="rounded-md border border-slate-800/80 bg-slate-950/40 px-3 py-1.5 hover:bg-slate-950/70"
+                  className="rounded-lg border border-slate-800/80 bg-slate-950/40 px-3 py-1.5 transition hover:bg-slate-950/70"
                 >
                   Login
                 </Link>
                 <Link
                   to="/signup"
-                  className="rounded-md bg-indigo-600 px-3 py-1.5 font-medium hover:bg-indigo-500"
+                  className="rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-500 px-3.5 py-1.5 font-medium text-white shadow-lg shadow-indigo-600/25 transition hover:from-indigo-500 hover:to-indigo-400"
                 >
                   Sign up
                 </Link>
@@ -73,10 +84,11 @@ function ThemePicker({ theme, setTheme }) {
   return (
     <label className="relative inline-flex items-center">
       <span className="sr-only">Theme</span>
+      <PaletteIcon className="pointer-events-none absolute left-2.5 h-4 w-4 text-slate-400" />
       <select
         value={theme}
         onChange={(e) => setTheme(e.target.value)}
-        className="appearance-none rounded-md border border-slate-800/80 bg-slate-950/40 px-3 py-1.5 pr-8 text-xs font-medium text-slate-200 hover:bg-slate-950/70 focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
+        className="appearance-none rounded-lg border border-slate-800/80 bg-slate-950/40 py-1.5 pl-8 pr-8 text-xs font-medium text-slate-200 transition hover:bg-slate-950/70 focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
         aria-label="Theme"
         title="Theme"
       >
@@ -86,18 +98,7 @@ function ThemePicker({ theme, setTheme }) {
           </option>
         ))}
       </select>
-      <svg
-        viewBox="0 0 20 20"
-        fill="currentColor"
-        aria-hidden="true"
-        className="pointer-events-none absolute right-2 h-4 w-4 text-slate-400"
-      >
-        <path
-          fillRule="evenodd"
-          d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
-          clipRule="evenodd"
-        />
-      </svg>
+      <ChevronDownIcon className="pointer-events-none absolute right-2 h-4 w-4 text-slate-400" />
     </label>
   );
 }

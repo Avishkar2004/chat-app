@@ -49,6 +49,7 @@ export default function RoomsChat({ onSwitchTab }) {
       <ChatPanelHeader
         title={roomChat.activeRoom?.name}
         subtitle={roomChat.activeRoom?.description}
+        avatarName={roomChat.activeRoom?.name}
         connected={connected}
         typingUser={roomChat.typingUser}
       />

@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import AuthPageLayout, {
+  AuthField,
+  PasswordField,
+  SubmitButton,
+  UserIcon,
   errorBoxClass,
   footerLinkClass,
-  inputClass,
-  labelClass,
-  primaryButtonClass,
 } from "../components/AuthPageLayout";
 
 export default function LoginPage() {
@@ -36,35 +37,34 @@ export default function LoginPage() {
       title="Welcome back"
       subtitle="Sign in to pick up where you left off in your conversations."
     >
-      <form onSubmit={onSubmit} className="space-y-5">
-        <label className={labelClass}>
-          Email or username
-          <input
-            value={emailOrUsername}
-            onChange={(e) => setEmailOrUsername(e.target.value)}
-            className={inputClass}
-            autoComplete="username"
-            placeholder="you@email.com or handle"
-          />
-        </label>
+      <form onSubmit={onSubmit} className="space-y-5" noValidate>
+        <AuthField
+          label="Email or username"
+          icon={UserIcon}
+          value={emailOrUsername}
+          onChange={(e) => setEmailOrUsername(e.target.value)}
+          autoComplete="username"
+          autoFocus
+          placeholder="you@email.com or handle"
+        />
 
-        <label className={labelClass}>
-          Password
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className={inputClass}
-            autoComplete="current-password"
-            placeholder="••••••••"
-          />
-        </label>
+        <PasswordField
+          label="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          autoComplete="current-password"
+          placeholder="••••••••"
+        />
 
-        {error ? <div className={errorBoxClass}>{error}</div> : null}
+        {error ? (
+          <div className={errorBoxClass} role="alert">
+            {error}
+          </div>
+        ) : null}
 
-        <button type="submit" disabled={submitting} className={primaryButtonClass}>
-          {submitting ? "Signing in…" : "Sign in"}
-        </button>
+        <SubmitButton loading={submitting} loadingText="Signing in…">
+          Sign in
+        </SubmitButton>
 
         <p className="border-t border-slate-800/80 pt-6 text-center text-sm text-slate-500">
           Don’t have an account?{" "}
