@@ -20,9 +20,11 @@ export default function MessageList({
   peerUsername,
   empty,
   requirePeer,
+  variant = "room",
   showReadStatus = false,
 }) {
   const meLabel = displayHandle(myUsername) || "@you";
+  const gap = variant === "dm" ? "space-y-1.5" : "space-y-3";
 
   if (requirePeer && !peerUsername) {
     return (
@@ -41,13 +43,14 @@ export default function MessageList({
       {messages.length === 0 ? (
         <EmptyState {...empty} />
       ) : (
-        <div className="space-y-3">
+        <div className={gap}>
           {messages.map((m) => (
             <MessageBubble
               key={m.id}
               message={m}
               authorLabel={m.mine ? meLabel : displayHandle(m.author || peerUsername)}
               avatarName={m.mine ? myUsername : m.author || peerUsername}
+              variant={variant}
               showReadStatus={showReadStatus}
             />
           ))}

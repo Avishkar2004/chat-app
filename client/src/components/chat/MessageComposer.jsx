@@ -18,9 +18,11 @@ export default function MessageComposer({
   disabled,
   placeholder,
   composer,
+  variant = "room",
   showShiftHint = true,
   showVoiceWhenEmpty = false,
 }) {
+  const isDm = variant === "dm";
   const {
     draft,
     emojiOpen,
@@ -38,7 +40,12 @@ export default function MessageComposer({
   return (
     <div className="border-t border-slate-800/80 bg-slate-950/30 p-3">
       <div className="flex items-end gap-2">
-        <div className="flex-1 rounded-2xl border border-slate-800/80 bg-slate-950/40 px-3 py-2">
+        <div
+          className={[
+            "flex-1 border border-slate-800/80 bg-slate-950/40 px-3 py-2",
+            isDm ? "rounded-3xl" : "rounded-2xl",
+          ].join(" ")}
+        >
           {pendingAttachment ? (
             <div className="mb-2 flex items-center justify-between gap-2 rounded-xl border border-slate-800/80 bg-slate-950/40 px-3 py-2">
               <div className="flex min-w-0 items-center gap-2.5">
@@ -112,19 +119,30 @@ export default function MessageComposer({
             </button>
           </div>
 
-          <div className="mt-1 flex items-center justify-between text-[11px] text-slate-500">
-            {uploading ? (
-              <span className="flex items-center gap-1.5 text-indigo-300">
-                <span className="h-3 w-3 animate-spin rounded-full border-2 border-indigo-400/40 border-t-indigo-300" />
-                Uploading…
-              </span>
-            ) : showShiftHint ? (
-              <span>Shift+Enter for new line</span>
-            ) : (
-              <span />
-            )}
-            <span>{draft.trim().length ? `${draft.trim().length} chars` : ""}</span>
-          </div>
+          {isDm ? (
+            uploading ? (
+              <div className="mt-1 text-[11px]">
+                <span className="flex items-center gap-1.5 text-indigo-300">
+                  <span className="h-3 w-3 animate-spin rounded-full border-2 border-indigo-400/40 border-t-indigo-300" />
+                  Uploading…
+                </span>
+              </div>
+            ) : null
+          ) : (
+            <div className="mt-1 flex items-center justify-between text-[11px] text-slate-500">
+              {uploading ? (
+                <span className="flex items-center gap-1.5 text-indigo-300">
+                  <span className="h-3 w-3 animate-spin rounded-full border-2 border-indigo-400/40 border-t-indigo-300" />
+                  Uploading…
+                </span>
+              ) : showShiftHint ? (
+                <span>Shift+Enter for new line</span>
+              ) : (
+                <span />
+              )}
+              <span>{draft.trim().length ? `${draft.trim().length} chars` : ""}</span>
+            </div>
+          )}
         </div>
 
         <input

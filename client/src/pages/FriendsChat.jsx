@@ -91,6 +91,7 @@ export default function FriendsChat({ onSwitchTab }) {
         messages={dmChat.messages}
         myUsername={user?.username}
         peerUsername={friend?.username}
+        variant="dm"
         showReadStatus
         requirePeer
         empty={{
@@ -101,6 +102,7 @@ export default function FriendsChat({ onSwitchTab }) {
 
       <MessageComposer
         composer={composer}
+        variant="dm"
         onDraftChange={composer.updateDraft}
         onSend={handleSend}
         disabled={!friend}

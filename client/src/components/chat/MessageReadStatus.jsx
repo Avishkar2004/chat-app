@@ -1,39 +1,63 @@
 import React from "react";
 
 /**
- * Read receipt arrows on your own messages (DMs).
- * One arrow = sent, not seen yet. Two arrows = seen by the other person.
+ * Read receipt ticks on your own messages (DMs).
+ * Single grey tick = sent, not seen yet.
+ * Double blue tick = seen by the other person.
  */
 export default function MessageReadStatus({ read }) {
-  const label = read ? "Seen" : "Sent";
-  const color = read ? "text-sky-400" : "text-slate-500";
+  const label = read ? "Read" : "Sent";
+  // WhatsApp greys delivered ticks and turns them light blue (#53bdeb) on read.
+  const color = read ? "text-[#53bdeb]" : "text-slate-400";
 
   return (
     <span
-      className={`inline-flex items-center gap-0.5 ${color}`}
+      className={`inline-flex items-center ${color}`}
       title={label}
       aria-label={label}
+      role="img"
     >
-      <Arrow />
-      {read ? <Arrow className="-ml-2.5" /> : null}
+      {read ? <DoubleTick /> : <SingleTick />}
     </span>
   );
 }
 
-function Arrow({ className = "" }) {
+/** WhatsApp-style single tick: one wide, shallow checkmark (message sent). */
+function SingleTick() {
   return (
     <svg
-      viewBox="0 0 24 24"
+      viewBox="0 0 18 11"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2.5"
+      strokeWidth="1.6"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={`h-3.5 w-3.5 ${className}`}
+      className="h-3.5 w-[18px]"
       aria-hidden="true"
     >
-      <path d="M7 17L17 7" />
-      <path d="M7 7h10v10" />
+      <path d="M4 6.2 7.2 9.2 13.2 1.8" />
+    </svg>
+  );
+}
+
+/**
+ * WhatsApp-style double tick: two wide, shallow checkmarks that overlap so the
+ * second tick's tail tucks behind the first (message read).
+ */
+function DoubleTick() {
+  return (
+    <svg
+      viewBox="0 0 18 11"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-3.5 w-[18px]"
+      aria-hidden="true"
+    >
+      <path d="M1 6.2 4.2 9.2 10.2 1.8" />
+      <path d="M7.8 9.2 13.8 1.8" />
     </svg>
   );
 }
