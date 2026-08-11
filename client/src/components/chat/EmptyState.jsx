@@ -1,17 +1,35 @@
 import React from "react";
 import { ChatIcon } from "../ui/icons";
 
-export default function EmptyState({ title, description, tall, icon: Icon = ChatIcon }) {
+/**
+ * An empty state always answers "what do I do now?", not just "there is
+ * nothing here". `action` is where the next step goes.
+ */
+export default function EmptyState({
+  title,
+  description,
+  action,
+  tall,
+  icon: Icon = ChatIcon,
+}) {
   return (
-    <div className={tall ? "grid h-full place-items-center" : "grid h-[200px] place-items-center"}>
-      <div className="max-w-md text-center">
-        <div className="mx-auto mb-3 grid h-14 w-14 place-items-center rounded-2xl border border-slate-800/80 bg-slate-950/40 text-slate-400 ring-1 ring-white/5">
-          <Icon className="h-7 w-7" />
+    <div
+      className={[
+        "grid place-items-center px-6",
+        tall ? "h-full" : "min-h-[180px] py-10",
+      ].join(" ")}
+    >
+      <div className="max-w-sm text-center">
+        <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-full border border-line bg-surface-2 text-fg-subtle">
+          <Icon className="h-6 w-6" />
         </div>
-        <div className="text-sm font-semibold text-slate-100">{title}</div>
+        <p className="text-msg font-semibold text-fg">{title}</p>
         {description ? (
-          <div className="mt-1 text-xs text-slate-400">{description}</div>
+          <p className="mt-1.5 text-label leading-relaxed text-fg-muted">
+            {description}
+          </p>
         ) : null}
+        {action ? <div className="mt-5 flex justify-center">{action}</div> : null}
       </div>
     </div>
   );

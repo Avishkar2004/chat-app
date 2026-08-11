@@ -29,7 +29,7 @@ export default function SignupPage() {
       await signup({ email, username, password });
       nav("/", { replace: true });
     } catch (err) {
-      setError(err.message || "Signup failed");
+      setError(err.message || "We couldn't create your account. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -38,7 +38,7 @@ export default function SignupPage() {
   return (
     <AuthPageLayout
       title="Create your account"
-      subtitle="You’ll be signed in automatically and can jump straight into the chat."
+      subtitle="It takes a minute. You'll be logged in straight away."
     >
       <form onSubmit={onSubmit} className="space-y-5" noValidate>
         <AuthField
@@ -54,21 +54,22 @@ export default function SignupPage() {
 
         <AuthField
           label="Username"
+          hint="— this is how friends find you"
           icon={UserIcon}
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           autoComplete="username"
-          placeholder="cool_dev"
+          placeholder="john"
         />
 
         <div>
           <PasswordField
             label="Password"
-            hint="(min 8 characters)"
+            hint="— at least 8 characters"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="new-password"
-            placeholder="••••••••"
+            placeholder="Create a password"
           />
           <PasswordStrength value={password} />
         </div>
@@ -79,14 +80,14 @@ export default function SignupPage() {
           </div>
         ) : null}
 
-        <SubmitButton loading={submitting} loadingText="Creating…">
+        <SubmitButton loading={submitting} loadingText="Creating your account…">
           Create account
         </SubmitButton>
 
-        <p className="border-t border-slate-800/80 pt-6 text-center text-sm text-slate-500">
+        <p className="border-t border-line pt-5 text-center text-label text-fg-muted">
           Already have an account?{" "}
           <Link className={footerLinkClass} to="/login">
-            Sign in
+            Log in
           </Link>
         </p>
       </form>

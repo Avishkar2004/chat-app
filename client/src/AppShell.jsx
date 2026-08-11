@@ -2,103 +2,127 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "./auth/AuthContext";
 import { THEMES, useTheme } from "./theme/ThemeContext";
-import Avatar from "./components/ui/Avatar";
-import { ChatIcon, ChevronDownIcon, LogoutIcon, PaletteIcon } from "./components/ui/icons";
+import Button, { IconButton } from "./components/ui/Button";
+import {
+  ChatIcon,
+  LogoutIcon,
+  MonitorIcon,
+  MoonIcon,
+  SunIcon,
+} from "./components/ui/icons";
 import { displayHandle } from "./lib/usernames";
 
+const THEME_ICONS = {
+  light: SunIcon,
+  dark: MoonIcon,
+  system: MonitorIcon,
+};
+
+/**
+ * The frame around every screen: one hairline-separated bar on top, everything
+ * else below it. No blurred blobs, no glow layer, no translucent panels — the
+ * messages are the only thing that should pull your eye.
+ *
+ * The shell is exactly one viewport tall and never scrolls, so on a phone the
+ * message box stays put when the keyboard opens.
+ */
 export default function AppShell({ children }) {
   const { user, logout } = useAuth();
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
-      >
-        <div className="absolute -top-24 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-indigo-600/15 blur-3xl" />
-        <div className="absolute -bottom-28 right-[-60px] h-[520px] w-[520px] rounded-full bg-fuchsia-600/10 blur-3xl" />
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage:
-              "radial-gradient(1200px circle at 50% -200px, rgb(var(--c-glow) / 0.25), transparent 60%)",
-          }}
-        />
-      </div>
-
-      <header className="sticky top-0 z-30 border-b border-slate-800/80 bg-slate-950/60 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
-          <Link to="/" className="group flex items-center gap-2.5">
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 text-white shadow-lg shadow-indigo-600/25 ring-1 ring-white/15">
+    <div className="flex h-screen-dvh flex-col bg-canvas text-fg">
+      <header className="flex-none border-b border-line bg-surface">
+        <div className="mx-auto flex w-full max-w-6xl items-center gap-2 px-3 py-2">
+          <Link
+            to="/"
+            className="flex min-w-0 items-center gap-2 rounded-lg py-1 pr-1"
+          >
+            <span className="grid h-8 w-8 flex-none place-items-center rounded-lg bg-accent text-accent-fg">
               <ChatIcon className="h-5 w-5" />
             </span>
-            <span className="text-lg font-bold tracking-tight text-slate-100">
+            <span className="truncate text-msg font-semibold text-fg">
               ChatApp
             </span>
           </Link>
 
-          <div className="flex items-center gap-2 text-sm sm:gap-3">
-            <ThemePicker theme={theme} setTheme={setTheme} />
+          <div className="flex flex-1 items-center justify-end gap-2">
+            <ThemeToggle theme={theme} setTheme={setTheme} />
+
             {user ? (
-              <div className="flex items-center gap-2.5">
-                <div className="hidden items-center gap-2 rounded-full border border-slate-800/80 bg-slate-950/40 py-1 pl-1 pr-3 sm:flex">
-                  <Avatar name={user.username} size="xs" />
-                  <span className="text-sm font-medium text-slate-200">
-                    {displayHandle(user.username)}
-                  </span>
-                </div>
-                <button
+              <>
+                <span className="hidden truncate text-label text-fg-muted sm:inline">
+                  {displayHandle(user.username)}
+                </span>
+                <Button
+                  size="sm"
                   onClick={logout}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-800/80 bg-slate-950/40 px-3 py-1.5 text-slate-200 transition hover:border-rose-500/40 hover:bg-rose-950/30 hover:text-rose-200"
+                  className="hidden sm:inline-flex"
                 >
                   <LogoutIcon className="h-4 w-4" />
-                  <span className="hidden sm:inline">Logout</span>
-                </button>
-              </div>
+                  Log out
+                </Button>
+                <IconButton
+                  size="iconSm"
+                  label="Log out"
+                  onClick={logout}
+                  className="sm:hidden"
+                >
+                  <LogoutIcon className="h-4 w-4" />
+                </IconButton>
+              </>
             ) : (
               <>
-                <Link
-                  to="/login"
-                  className="rounded-lg border border-slate-800/80 bg-slate-950/40 px-3 py-1.5 transition hover:bg-slate-950/70"
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/signup"
-                  className="rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-500 px-3.5 py-1.5 font-medium text-white shadow-lg shadow-indigo-600/25 transition hover:from-indigo-500 hover:to-indigo-400"
-                >
+                <Button as={Link} to="/login" size="sm">
+                  Log in
+                </Button>
+                <Button as={Link} to="/signup" size="sm">
                   Sign up
-                </Link>
+                </Button>
               </>
             )}
           </div>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-5xl px-4 py-6">{children}</main>
+
+      <main className="min-h-0 flex-1 overflow-hidden">{children}</main>
     </div>
   );
 }
 
-function ThemePicker({ theme, setTheme }) {
+/**
+ * Three choices, not six: Light, Dark, and System (follow the device).
+ * Each segment shows an icon and carries a spoken label.
+ */
+function ThemeToggle({ theme, setTheme }) {
   return (
-    <label className="relative inline-flex items-center">
-      <span className="sr-only">Theme</span>
-      <PaletteIcon className="pointer-events-none absolute left-2.5 h-4 w-4 text-slate-400" />
-      <select
-        value={theme}
-        onChange={(e) => setTheme(e.target.value)}
-        className="appearance-none rounded-lg border border-slate-800/80 bg-slate-950/40 py-1.5 pl-8 pr-8 text-xs font-medium text-slate-200 transition hover:bg-slate-950/70 focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
-        aria-label="Theme"
-        title="Theme"
-      >
-        {THEMES.map((t) => (
-          <option key={t.id} value={t.id} className="bg-slate-900 text-slate-100">
-            {t.label}
-          </option>
-        ))}
-      </select>
-      <ChevronDownIcon className="pointer-events-none absolute right-2 h-4 w-4 text-slate-400" />
-    </label>
+    <div
+      role="group"
+      aria-label="Colour theme"
+      className="flex flex-none items-center gap-0.5 rounded-lg border border-line bg-surface-2 p-0.5"
+    >
+      {THEMES.map((t) => {
+        const Icon = THEME_ICONS[t.id];
+        const selected = theme === t.id;
+        return (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => setTheme(t.id)}
+            aria-label={`${t.label} theme`}
+            aria-pressed={selected}
+            title={`${t.label} theme`}
+            className={[
+              "grid h-8 w-8 place-items-center rounded-md transition",
+              selected
+                ? "bg-surface text-fg shadow-none ring-1 ring-line"
+                : "text-fg-subtle hover:text-fg",
+            ].join(" ")}
+          >
+            <Icon className="h-4 w-4" />
+          </button>
+        );
+      })}
+    </div>
   );
 }

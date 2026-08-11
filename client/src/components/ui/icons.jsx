@@ -4,6 +4,9 @@ import React from "react";
  * Shared icon set. Crisp 24x24 line icons used across the chat UI so we don't
  * rely on emoji glyphs (which render inconsistently across platforms).
  * Each icon inherits `currentColor` and accepts a `className` for sizing.
+ *
+ * Icons are decorative by default (`aria-hidden`). Any control that shows an
+ * icon and no text must carry its own `aria-label`.
  */
 function Svg({ children, className = "h-5 w-5", stroke = true, ...props }) {
   return (
@@ -29,18 +32,19 @@ export const SendIcon = (p) => (
   </Svg>
 );
 
-export const MicIcon = (p) => (
-  <Svg {...p}>
-    <rect x="9" y="2" width="6" height="12" rx="3" />
-    <path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8" />
-  </Svg>
-);
-
 export const SmileIcon = (p) => (
   <Svg {...p}>
     <circle cx="12" cy="12" r="9" />
     <path d="M8.5 14.5a4.5 4.5 0 0 0 7 0" />
     <path d="M9 9.5h.01M15 9.5h.01" strokeWidth="2.2" />
+  </Svg>
+);
+
+export const ImageIcon = (p) => (
+  <Svg {...p}>
+    <rect x="3" y="4" width="18" height="16" rx="2" />
+    <circle cx="8.5" cy="9.5" r="1.5" />
+    <path d="m4 17 5-5 4 4 2.5-2.5L20 17" />
   </Svg>
 );
 
@@ -69,6 +73,14 @@ export const UserPlusIcon = (p) => (
     <circle cx="9" cy="8" r="4" />
     <path d="M2 20c0-3.3 3.1-6 7-6s7 2.7 7 6" />
     <path d="M19 8v6M22 11h-6" />
+  </Svg>
+);
+
+export const UsersIcon = (p) => (
+  <Svg {...p}>
+    <circle cx="9" cy="8" r="3.5" />
+    <path d="M2.5 19c0-3 2.9-5.5 6.5-5.5s6.5 2.5 6.5 5.5" />
+    <path d="M16.5 5.4a3.5 3.5 0 0 1 0 6.6M18 13.8c2.1.7 3.5 2.4 3.5 4.4" />
   </Svg>
 );
 
@@ -116,9 +128,47 @@ export const ChevronDownIcon = (p) => (
   </Svg>
 );
 
-export const PaletteIcon = (p) => (
+export const ArrowLeftIcon = (p) => (
   <Svg {...p}>
-    <path d="M12 3a9 9 0 1 0 0 18c1 0 1.7-.8 1.7-1.8 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-1 .8-1.8 1.8-1.8H16a5 5 0 0 0 5-5c0-3.9-4-7-9-7z" />
-    <path d="M7.5 11.5h.01M10.5 7.5h.01M14.5 7.5h.01" strokeWidth="2.2" />
+    <path d="M19 12H5M12 19l-7-7 7-7" />
+  </Svg>
+);
+
+export const SunIcon = (p) => (
+  <Svg {...p}>
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+  </Svg>
+);
+
+export const MoonIcon = (p) => (
+  <Svg {...p}>
+    <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" />
+  </Svg>
+);
+
+export const MonitorIcon = (p) => (
+  <Svg {...p}>
+    <rect x="3" y="4" width="18" height="12" rx="2" />
+    <path d="M9 20h6M12 16v4" />
+  </Svg>
+);
+
+export const WifiIcon = (p) => (
+  <Svg {...p}>
+    <path d="M2.5 9a15 15 0 0 1 19 0" />
+    <path d="M6 12.5a10 10 0 0 1 12 0" />
+    <path d="M9.5 16a5 5 0 0 1 5 0" />
+    <path d="M12 19.5h.01" strokeWidth="2.4" />
+  </Svg>
+);
+
+export const WifiOffIcon = (p) => (
+  <Svg {...p}>
+    <path d="m2 2 20 20" />
+    <path d="M6 12.5a10 10 0 0 1 4-2.4M14.4 10.6a10 10 0 0 1 3.6 1.9" />
+    <path d="M2.5 9a15 15 0 0 1 5-3.3M16 5.4A15 15 0 0 1 21.5 9" />
+    <path d="M9.5 16a5 5 0 0 1 4.6-.3" />
+    <path d="M12 19.5h.01" strokeWidth="2.4" />
   </Svg>
 );

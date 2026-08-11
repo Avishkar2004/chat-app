@@ -1,35 +1,37 @@
 import React from "react";
 
 /**
- * Read receipt ticks on your own messages (DMs).
- * Single grey tick = sent, not seen yet.
- * Double blue tick = seen by the other person.
+ * Read receipt on your own direct messages.
+ *
+ * The two states differ by SHAPE, not colour: one tick = sent, two ticks =
+ * seen. Colour and opacity only reinforce it, and each state carries a text
+ * label for screen readers and on hover.
  */
 export default function MessageReadStatus({ read }) {
-  const label = read ? "Read" : "Sent";
-  // WhatsApp greys delivered ticks and turns them light blue (#53bdeb) on read.
-  const color = read ? "text-[#53bdeb]" : "text-slate-400";
+  const label = read ? "Seen" : "Sent";
 
   return (
     <span
-      className={`inline-flex items-center ${color}`}
+      className={[
+        "inline-flex items-center",
+        read ? "opacity-100" : "opacity-75",
+      ].join(" ")}
       title={label}
-      aria-label={label}
-      role="img"
     >
       {read ? <DoubleTick /> : <SingleTick />}
+      <span className="sr-only">{label}</span>
     </span>
   );
 }
 
-/** WhatsApp-style single tick: one wide, shallow checkmark (message sent). */
+/** One tick: the message left your device. */
 function SingleTick() {
   return (
     <svg
       viewBox="0 0 18 11"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.6"
+      strokeWidth="1.7"
       strokeLinecap="round"
       strokeLinejoin="round"
       className="h-3.5 w-[18px]"
@@ -40,17 +42,14 @@ function SingleTick() {
   );
 }
 
-/**
- * WhatsApp-style double tick: two wide, shallow checkmarks that overlap so the
- * second tick's tail tucks behind the first (message read).
- */
+/** Two overlapping ticks: the other person has opened it. */
 function DoubleTick() {
   return (
     <svg
       viewBox="0 0 18 11"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.6"
+      strokeWidth="1.7"
       strokeLinecap="round"
       strokeLinejoin="round"
       className="h-3.5 w-[18px]"

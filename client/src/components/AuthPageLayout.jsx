@@ -1,67 +1,69 @@
 import React, { useId, useState } from "react";
 import { Link } from "react-router-dom";
+import { ChatIcon } from "./ui/icons";
 
+/* Editable fields are 16px on purpose: anything smaller makes iOS zoom the
+   whole page in when the field is focused. */
 const inputClass =
-  "w-full rounded-xl border border-slate-700/80 bg-slate-950/70 px-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20";
+  "h-12 w-full rounded-xl border border-line bg-surface-2 px-4 text-base text-fg outline-none transition placeholder:text-fg-subtle focus:border-accent";
 
 const inputWithIconClass = inputClass.replace("px-4", "pl-11 pr-4");
 
-const labelClass = "block text-sm font-medium text-slate-300";
+const labelClass = "block text-label font-medium text-fg";
 
-/** Shared polished shell for Login / Signup — matches ChatApp glass + indigo accents. */
+/**
+ * Shared frame for Log in / Sign up. One flat card, one hairline border, no
+ * glow and no gradient text — the form is the only thing on the screen.
+ */
 export default function AuthPageLayout({ title, subtitle, children }) {
   return (
-    <div className="flex min-h-[calc(100dvh-9rem)] w-full items-center justify-center px-4 py-4">
-      <div className="relative w-full max-w-[440px] px-1">
-        <div
-          aria-hidden="true"
-          className="absolute -inset-px rounded-[1.35rem] bg-gradient-to-br from-indigo-500/30 via-fuchsia-500/15 to-transparent opacity-60 blur-xl"
-        />
-        <div className="relative overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900/50 p-8 shadow-2xl shadow-black/50 backdrop-blur-xl ring-1 ring-white/5 sm:p-9">
-          <div className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-indigo-500/15 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-12 -left-12 h-36 w-36 rounded-full bg-fuchsia-500/10 blur-3xl" />
+    <div className="scrollbar-slim h-full overflow-y-auto px-4 py-8">
+      <div className="mx-auto w-full max-w-[26rem]">
+        <div className="rounded-2xl border border-line bg-surface p-6 sm:p-8">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 rounded-lg text-fg"
+          >
+            <span className="grid h-8 w-8 place-items-center rounded-lg bg-accent text-accent-fg">
+              <ChatIcon className="h-5 w-5" />
+            </span>
+            <span className="text-msg font-semibold">ChatApp</span>
+          </Link>
 
-          <div className="relative">
-            <Link
-              to="/"
-              className="inline-flex items-center gap-2 rounded-lg bg-indigo-500/15 px-2.5 py-1 text-xs font-semibold uppercase tracking-wider text-indigo-200 ring-1 ring-indigo-500/25 transition hover:bg-indigo-500/25"
-            >
-              ChatApp
-            </Link>
-            <h1 className="mt-5 bg-gradient-to-br from-white to-slate-400 bg-clip-text text-3xl font-bold tracking-tight text-transparent">
-              {title}
-            </h1>
-            <p className="mt-2 text-sm leading-relaxed text-slate-400">
-              {subtitle}
-            </p>
-          </div>
+          <h1 className="mt-6 text-2xl font-bold tracking-tight text-fg">
+            {title}
+          </h1>
+          <p className="mt-2 text-label leading-relaxed text-fg-muted">
+            {subtitle}
+          </p>
 
-          <div className="relative mt-8">{children}</div>
+          <div className="mt-7">{children}</div>
         </div>
       </div>
     </div>
   );
 }
 
+/* The single filled button on these screens. */
 const primaryButtonClass =
-  "w-full rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/25 transition hover:from-indigo-500 hover:to-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 text-msg font-semibold text-accent-fg transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60";
 
 const errorBoxClass =
-  "rounded-xl border border-rose-500/30 bg-rose-950/50 px-4 py-3 text-sm text-rose-100 backdrop-blur-sm";
+  "rounded-xl border border-line bg-danger-soft px-4 py-3 text-label text-danger-text";
 
 const footerLinkClass =
-  "font-medium text-indigo-300 underline-offset-2 transition hover:text-indigo-200 hover:underline";
+  "font-semibold text-accent-text underline underline-offset-2 hover:no-underline";
 
 /* ------------------------------------------------------------------ */
 /* Icons                                                               */
 /* ------------------------------------------------------------------ */
 
 const iconWrapClass =
-  "pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 peer-focus:text-indigo-300 transition-colors";
+  "pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-fg-subtle";
 
 export function MailIcon(props) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-[1.05rem] w-[1.05rem]" {...props}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-[1.05rem] w-[1.05rem]" aria-hidden="true" {...props}>
       <rect x="3" y="5" width="18" height="14" rx="2" />
       <path d="m4 7 8 5 8-5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
@@ -70,7 +72,7 @@ export function MailIcon(props) {
 
 export function UserIcon(props) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-[1.05rem] w-[1.05rem]" {...props}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-[1.05rem] w-[1.05rem]" aria-hidden="true" {...props}>
       <circle cx="12" cy="8" r="4" />
       <path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6" strokeLinecap="round" />
     </svg>
@@ -79,7 +81,7 @@ export function UserIcon(props) {
 
 export function LockIcon(props) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-[1.05rem] w-[1.05rem]" {...props}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-[1.05rem] w-[1.05rem]" aria-hidden="true" {...props}>
       <rect x="4" y="10" width="16" height="11" rx="2" />
       <path d="M8 10V7a4 4 0 0 1 8 0v3" strokeLinecap="round" />
     </svg>
@@ -88,7 +90,7 @@ export function LockIcon(props) {
 
 function EyeIcon(props) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-[1.1rem] w-[1.1rem]" {...props}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-[1.1rem] w-[1.1rem]" aria-hidden="true" {...props}>
       <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" strokeLinecap="round" strokeLinejoin="round" />
       <circle cx="12" cy="12" r="3" />
     </svg>
@@ -97,7 +99,7 @@ function EyeIcon(props) {
 
 function EyeOffIcon(props) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-[1.1rem] w-[1.1rem]" {...props}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-[1.1rem] w-[1.1rem]" aria-hidden="true" {...props}>
       <path d="M3 3l18 18" strokeLinecap="round" />
       <path d="M10.6 6.1A9.7 9.7 0 0 1 12 5c6.5 0 10 7 10 7a17.8 17.8 0 0 1-3.3 4.1M6.6 6.6A17.6 17.6 0 0 0 2 12s3.5 7 10 7a9.7 9.7 0 0 0 4.3-1" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" strokeLinecap="round" strokeLinejoin="round" />
@@ -118,19 +120,19 @@ function SpinnerIcon() {
 /* Fields                                                              */
 /* ------------------------------------------------------------------ */
 
-/** Labeled text input with an optional leading icon. */
+/** Labelled text input with an optional leading icon. */
 export function AuthField({ label, hint, icon: Icon, ...props }) {
   const id = useId();
   return (
     <div>
       <label htmlFor={id} className={labelClass}>
         {label}
-        {hint ? <span className="font-normal text-slate-500"> {hint}</span> : null}
+        {hint ? <span className="font-normal text-fg-subtle"> {hint}</span> : null}
       </label>
       <div className="relative mt-1.5">
         <input id={id} className={Icon ? inputWithIconClass : inputClass} {...props} />
         {Icon ? (
-          <span className={iconWrapClass} aria-hidden="true">
+          <span className={iconWrapClass}>
             <Icon />
           </span>
         ) : null}
@@ -139,7 +141,7 @@ export function AuthField({ label, hint, icon: Icon, ...props }) {
   );
 }
 
-/** Password input with leading lock icon, show/hide toggle and Caps Lock warning. */
+/** Password input with a show/hide toggle and a Caps Lock warning. */
 export function PasswordField({ label, hint, ...props }) {
   const id = useId();
   const [show, setShow] = useState(false);
@@ -155,19 +157,19 @@ export function PasswordField({ label, hint, ...props }) {
     <div>
       <label htmlFor={id} className={labelClass}>
         {label}
-        {hint ? <span className="font-normal text-slate-500"> {hint}</span> : null}
+        {hint ? <span className="font-normal text-fg-subtle"> {hint}</span> : null}
       </label>
       <div className="relative mt-1.5">
         <input
           id={id}
           type={show ? "text" : "password"}
-          className={inputWithIconClass.replace("pr-4", "pr-11")}
+          className={inputWithIconClass.replace("pr-4", "pr-12")}
           onKeyUp={handleKey}
           onKeyDown={handleKey}
           onBlur={() => setCapsOn(false)}
           {...props}
         />
-        <span className={iconWrapClass} aria-hidden="true">
+        <span className={iconWrapClass}>
           <LockIcon />
         </span>
         <button
@@ -175,26 +177,27 @@ export function PasswordField({ label, hint, ...props }) {
           onClick={() => setShow((s) => !s)}
           aria-label={show ? "Hide password" : "Show password"}
           aria-pressed={show}
-          className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-slate-500 transition hover:bg-slate-800/60 hover:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
+          title={show ? "Hide password" : "Show password"}
+          className="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-lg text-fg-subtle transition hover:bg-surface-3 hover:text-fg"
         >
           {show ? <EyeOffIcon /> : <EyeIcon />}
         </button>
       </div>
       {capsOn ? (
-        <p className="mt-1.5 flex items-center gap-1 text-xs text-amber-300/90">
-          <span aria-hidden="true">⚠</span> Caps Lock is on
-        </p>
+        <p className="mt-1.5 text-meta text-warning-text">Caps Lock is on</p>
       ) : null}
     </div>
   );
 }
 
+/* Strength is spelled out in words as well as bars — the colour is a hint, not
+   the message. */
 const STRENGTH = [
-  { label: "Too short", color: "bg-rose-500" },
-  { label: "Weak", color: "bg-rose-500" },
-  { label: "Fair", color: "bg-amber-500" },
-  { label: "Good", color: "bg-lime-500" },
-  { label: "Strong", color: "bg-emerald-500" },
+  { label: "Too short", color: "bg-danger" },
+  { label: "Weak", color: "bg-danger" },
+  { label: "Fair", color: "bg-warning" },
+  { label: "Good", color: "bg-positive" },
+  { label: "Strong", color: "bg-positive" },
 ];
 
 function scorePassword(pw) {
@@ -208,7 +211,7 @@ function scorePassword(pw) {
   return Math.min(score, 4);
 }
 
-/** Small 4-segment strength meter; renders nothing until the user types. */
+/** Four-segment strength meter; renders nothing until the user types. */
 export function PasswordStrength({ value }) {
   if (!value) return null;
   const score = scorePassword(value);
@@ -219,27 +222,25 @@ export function PasswordStrength({ value }) {
         {[1, 2, 3, 4].map((i) => (
           <span
             key={i}
-            className={`h-1 flex-1 rounded-full transition-colors ${
-              i <= score ? color : "bg-slate-700/70"
+            className={`h-1.5 flex-1 rounded-full transition-colors ${
+              i <= score ? color : "bg-surface-3"
             }`}
           />
         ))}
       </div>
-      <p className="mt-1.5 text-xs text-slate-500">
-        Password strength: <span className="text-slate-300">{label}</span>
+      <p className="mt-1.5 text-meta text-fg-subtle" aria-live="polite">
+        Password strength: <span className="font-semibold text-fg-muted">{label}</span>
       </p>
     </div>
   );
 }
 
-/** Primary submit button with a built-in loading spinner. */
+/** The one filled button on the screen, with a built-in loading state. */
 export function SubmitButton({ loading, loadingText, children, ...props }) {
   return (
     <button type="submit" disabled={loading} className={primaryButtonClass} {...props}>
-      <span className="flex items-center justify-center gap-2">
-        {loading ? <SpinnerIcon /> : null}
-        {loading ? loadingText || children : children}
-      </span>
+      {loading ? <SpinnerIcon /> : null}
+      {loading ? loadingText || children : children}
     </button>
   );
 }

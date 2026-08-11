@@ -1,45 +1,56 @@
 import React from "react";
+import { WifiIcon, WifiOffIcon } from "../ui/icons";
 
-export default function ConnectionStatus({ connected, typingUser }) {
-  if (connected && typingUser) {
-    return (
-      <div className="hidden items-center gap-2 text-xs text-indigo-300 sm:flex">
-        <TypingDots />
-        <span>{typingUser} is typing…</span>
-      </div>
-    );
-  }
+/**
+ * Whether the app is talking to the server.
+ *
+ * State is carried by an icon AND a word, never by colour alone: connected is a
+ * wifi glyph reading "Connected", offline is a struck-through wifi glyph
+ * reading "Reconnecting…".
+ */
+export default function ConnectionStatus({ connected, compact = false }) {
+  const Icon = connected ? WifiIcon : WifiOffIcon;
+  const text = connected ? "Connected" : "Reconnecting…";
 
   return (
-    <div className="hidden items-center gap-2 sm:flex">
-      <span className="relative flex h-2.5 w-2.5">
-        {connected ? (
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400/60" />
-        ) : null}
-        <span
-          className={[
-            "relative inline-flex h-2.5 w-2.5 rounded-full",
-            connected ? "bg-emerald-400" : "bg-rose-500",
-          ].join(" ")}
-        />
-      </span>
-      <span className={["text-xs", connected ? "text-slate-400" : "text-rose-300"].join(" ")}>
-        {connected ? "Connected" : "Disconnected"}
-      </span>
-    </div>
+    <span
+      role="status"
+      aria-live="polite"
+      title={text}
+      className={[
+        "inline-flex flex-none items-center gap-1.5 text-meta",
+        connected ? "text-fg-subtle" : "text-warning-text",
+      ].join(" ")}
+    >
+      <Icon className="h-4 w-4 flex-none" />
+      <span className={compact ? "sr-only" : "hidden sm:inline"}>{text}</span>
+      {compact ? null : <span className="sr-only sm:hidden">{text}</span>}
+    </span>
   );
 }
 
-function TypingDots() {
+/**
+ * "@someone is typing…" — shown at the foot of the message list rather than in
+ * the header, so it appears right where the next message will land.
+ */
+export function TypingIndicator({ who }) {
+  if (!who) return null;
   return (
-    <span className="inline-flex items-center gap-0.5" aria-hidden="true">
-      {[0, 150, 300].map((delay) => (
-        <span
-          key={delay}
-          className="h-1.5 w-1.5 animate-bounce rounded-full bg-indigo-400"
-          style={{ animationDelay: `${delay}ms` }}
-        />
-      ))}
-    </span>
+    <div
+      className="flex items-center gap-2 px-4 pb-1 pt-2 text-meta text-fg-muted"
+      role="status"
+      aria-live="polite"
+    >
+      <span className="inline-flex items-center gap-0.5" aria-hidden="true">
+        {[0, 150, 300].map((delay) => (
+          <span
+            key={delay}
+            className="h-1.5 w-1.5 animate-bounce rounded-full bg-fg-subtle"
+            style={{ animationDelay: `${delay}ms` }}
+          />
+        ))}
+      </span>
+      <span>{who} is typing…</span>
+    </div>
   );
 }

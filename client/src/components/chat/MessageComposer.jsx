@@ -1,28 +1,29 @@
 import React from "react";
 import { EMOJI_PICKER } from "../../lib/constants";
+import { IconButton } from "../ui/Button";
 import {
   CloseIcon,
   FileIcon,
-  MicIcon,
-  PaperclipIcon,
+  ImageIcon,
   SendIcon,
   SmileIcon,
 } from "../ui/icons";
 
-const toolBtnClass =
-  "grid h-10 w-10 flex-none place-items-center rounded-xl border border-slate-800/80 bg-slate-950/30 text-slate-300 transition hover:bg-slate-950/60 hover:text-indigo-300 disabled:cursor-not-allowed disabled:opacity-60";
-
+/**
+ * Where you write. Pinned to the bottom of the conversation column and never
+ * scrolls, so on a phone it sits directly above the keyboard.
+ *
+ * "Send" is the one filled button on this screen; emoji and the two attach
+ * buttons are quiet icon buttons, each with a spoken label.
+ */
 export default function MessageComposer({
   onDraftChange,
   onSend,
   disabled,
   placeholder,
   composer,
-  variant = "room",
   showShiftHint = true,
-  showVoiceWhenEmpty = false,
 }) {
-  const isDm = variant === "dm";
   const {
     draft,
     emojiOpen,
@@ -38,111 +39,80 @@ export default function MessageComposer({
   } = composer;
 
   return (
-    <div className="border-t border-slate-800/80 bg-slate-950/30 p-3">
-      <div className="flex items-end gap-2">
-        <div
-          className={[
-            "flex-1 border border-slate-800/80 bg-slate-950/40 px-3 py-2",
-            isDm ? "rounded-3xl" : "rounded-2xl",
-          ].join(" ")}
-        >
-          {pendingAttachment ? (
-            <div className="mb-2 flex items-center justify-between gap-2 rounded-xl border border-slate-800/80 bg-slate-950/40 px-3 py-2">
-              <div className="flex min-w-0 items-center gap-2.5">
-                <span className="grid h-9 w-9 flex-none place-items-center rounded-lg bg-indigo-500/15 text-indigo-200 ring-1 ring-indigo-500/20">
-                  <FileIcon className="h-5 w-5" />
-                </span>
-                <div className="min-w-0">
-                  <div className="truncate text-xs font-medium text-slate-200">
-                    {pendingAttachment.originalName || "Attachment"}
-                  </div>
-                  <div className="text-[11px] text-slate-500">{pendingAttachment.mime}</div>
-                </div>
+    <div className="flex-none border-t border-line bg-surface px-3 py-2.5">
+      {pendingAttachment ? (
+        <div className="mb-2 flex items-center justify-between gap-2 rounded-xl border border-line bg-surface-2 px-3 py-2">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <span className="grid h-9 w-9 flex-none place-items-center rounded-lg bg-surface-3 text-fg-muted">
+              <FileIcon className="h-5 w-5" />
+            </span>
+            <div className="min-w-0">
+              <div className="truncate text-label font-medium text-fg">
+                {pendingAttachment.originalName || "Ready to send"}
               </div>
-              <button
-                type="button"
-                onClick={() => setPendingAttachment(null)}
-                aria-label="Remove attachment"
-                className="grid h-7 w-7 flex-none place-items-center rounded-md border border-slate-800/80 bg-slate-950/30 text-slate-300 transition hover:bg-rose-950/40 hover:text-rose-200"
-              >
-                <CloseIcon className="h-4 w-4" />
-              </button>
+              <div className="truncate text-meta text-fg-subtle">
+                {pendingAttachment.mime}
+              </div>
             </div>
-          ) : null}
-
-          <div className="flex items-end gap-2">
-            <button
-              type="button"
-              onClick={() => setEmojiOpen((v) => !v)}
-              className={[toolBtnClass, emojiOpen ? "text-indigo-300 ring-1 ring-indigo-500/30" : ""].join(" ")}
-              title="Emoji"
-              aria-label="Emoji"
-            >
-              <SmileIcon />
-            </button>
-
-            <textarea
-              value={draft}
-              onChange={(e) => onDraftChange(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  onSend();
-                }
-              }}
-              rows={1}
-              disabled={disabled}
-              placeholder={placeholder}
-              className="max-h-36 w-full resize-none bg-transparent py-2 text-sm text-slate-100 outline-none placeholder:text-slate-600 disabled:opacity-70"
-            />
-
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading || disabled}
-              className={toolBtnClass}
-              title="Photo / Video"
-              aria-label="Photo / Video"
-            >
-              <PaperclipIcon />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => pdfInputRef.current?.click()}
-              disabled={uploading || disabled}
-              className={toolBtnClass}
-              title="PDF"
-              aria-label="PDF"
-            >
-              <FileIcon />
-            </button>
           </div>
+          <IconButton
+            size="iconSm"
+            variant="ghost"
+            label="Remove this file"
+            onClick={() => setPendingAttachment(null)}
+          >
+            <CloseIcon className="h-4 w-4" />
+          </IconButton>
+        </div>
+      ) : null}
 
-          {isDm ? (
-            uploading ? (
-              <div className="mt-1 text-[11px]">
-                <span className="flex items-center gap-1.5 text-indigo-300">
-                  <span className="h-3 w-3 animate-spin rounded-full border-2 border-indigo-400/40 border-t-indigo-300" />
-                  Uploading…
-                </span>
-              </div>
-            ) : null
-          ) : (
-            <div className="mt-1 flex items-center justify-between text-[11px] text-slate-500">
-              {uploading ? (
-                <span className="flex items-center gap-1.5 text-indigo-300">
-                  <span className="h-3 w-3 animate-spin rounded-full border-2 border-indigo-400/40 border-t-indigo-300" />
-                  Uploading…
-                </span>
-              ) : showShiftHint ? (
-                <span>Shift+Enter for new line</span>
-              ) : (
-                <span />
-              )}
-              <span>{draft.trim().length ? `${draft.trim().length} chars` : ""}</span>
-            </div>
-          )}
+      <div className="flex items-end gap-2">
+        <div className="flex min-w-0 flex-1 items-end gap-0.5 rounded-2xl border border-line bg-surface-2 px-1.5 py-1">
+          <IconButton
+            size="iconSm"
+            variant={emojiOpen ? "quiet" : "ghost"}
+            label={emojiOpen ? "Close emoji list" : "Add an emoji"}
+            aria-expanded={emojiOpen}
+            onClick={() => setEmojiOpen((v) => !v)}
+          >
+            <SmileIcon className="h-5 w-5" />
+          </IconButton>
+
+          <textarea
+            value={draft}
+            onChange={(e) => onDraftChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                onSend();
+              }
+            }}
+            rows={1}
+            disabled={disabled}
+            placeholder={placeholder}
+            aria-label={placeholder || "Write a message"}
+            className="max-h-32 min-w-0 flex-1 resize-none bg-transparent px-1.5 py-2 text-msg text-fg outline-none placeholder:text-fg-subtle disabled:opacity-60"
+          />
+
+          <IconButton
+            size="iconSm"
+            variant="ghost"
+            label="Send a photo or video"
+            disabled={uploading || disabled}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <ImageIcon className="h-5 w-5" />
+          </IconButton>
+
+          <IconButton
+            size="iconSm"
+            variant="ghost"
+            label="Send a PDF"
+            disabled={uploading || disabled}
+            onClick={() => pdfInputRef.current?.click()}
+          >
+            <FileIcon className="h-5 w-5" />
+          </IconButton>
         </div>
 
         <input
@@ -150,6 +120,7 @@ export default function MessageComposer({
           type="file"
           accept="image/*,video/*"
           className="hidden"
+          tabIndex={-1}
           onChange={async (e) => {
             const file = e.target.files?.[0];
             e.target.value = "";
@@ -162,6 +133,7 @@ export default function MessageComposer({
           type="file"
           accept="application/pdf"
           className="hidden"
+          tabIndex={-1}
           onChange={async (e) => {
             const file = e.target.files?.[0];
             e.target.value = "";
@@ -169,34 +141,52 @@ export default function MessageComposer({
           }}
         />
 
-        <SendButton
+        <button
+          type="button"
           onClick={onSend}
           disabled={disabled || !canSend}
-          showVoice={showVoiceWhenEmpty && !canSend}
-        />
+          aria-label="Send message"
+          title="Send message"
+          className="grid h-11 w-11 flex-none place-items-center rounded-full bg-accent text-accent-fg transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:bg-surface-3 disabled:text-fg-subtle"
+        >
+          <SendIcon className="h-5 w-5" />
+        </button>
+      </div>
+
+      <div className="mt-1.5 flex min-h-[1rem] items-center gap-2 px-1 text-meta text-fg-subtle">
+        {uploading ? (
+          <span className="flex items-center gap-1.5 text-accent-text" role="status">
+            <span className="h-3 w-3 animate-spin rounded-full border-2 border-accent/40 border-t-accent" />
+            Uploading your file…
+          </span>
+        ) : showShiftHint ? (
+          <span className="truncate">
+            Enter sends · Shift + Enter starts a new line
+          </span>
+        ) : null}
       </div>
 
       {emojiOpen ? (
-        <div className="mt-3 rounded-2xl border border-slate-800/80 bg-slate-950/40 p-3">
+        <div className="mt-2 rounded-xl border border-line bg-surface-2 p-3">
           <div className="mb-2 flex items-center justify-between">
-            <div className="text-xs font-semibold text-slate-300">Emojis</div>
-            <button
-              type="button"
+            <p className="text-label font-semibold text-fg">Emoji</p>
+            <IconButton
+              size="iconSm"
+              variant="ghost"
+              label="Close emoji list"
               onClick={() => setEmojiOpen(false)}
-              aria-label="Close emoji picker"
-              className="grid h-7 w-7 place-items-center rounded-md border border-slate-800/80 bg-slate-950/30 text-slate-300 transition hover:bg-slate-950/60"
             >
               <CloseIcon className="h-4 w-4" />
-            </button>
+            </IconButton>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5">
             {EMOJI_PICKER.map((em) => (
               <button
                 key={em}
                 type="button"
                 onClick={() => insertEmoji(em)}
-                className="grid h-9 w-9 place-items-center rounded-xl border border-slate-800/80 bg-slate-950/30 text-lg hover:bg-slate-950/60"
-                aria-label={`emoji ${em}`}
+                className="grid h-10 w-10 place-items-center rounded-lg border border-line bg-surface text-xl transition hover:bg-surface-3"
+                aria-label={`Add the ${em} emoji`}
                 title={em}
               >
                 {em}
@@ -206,20 +196,5 @@ export default function MessageComposer({
         </div>
       ) : null}
     </div>
-  );
-}
-
-function SendButton({ onClick, disabled, showVoice }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      aria-label={showVoice ? "Voice message" : "Send message"}
-      title={showVoice ? "Voice" : "Send"}
-      className="inline-flex h-11 w-11 flex-none items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-600/25 transition hover:from-emerald-400 hover:to-emerald-500 active:scale-95 disabled:cursor-not-allowed disabled:from-slate-800/70 disabled:to-slate-800/70 disabled:text-slate-500 disabled:shadow-none"
-    >
-      {showVoice ? <MicIcon className="h-5 w-5" /> : <SendIcon className="h-5 w-5" />}
-    </button>
   );
 }

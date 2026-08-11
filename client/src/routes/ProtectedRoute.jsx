@@ -4,8 +4,13 @@ import { useAuth } from "../auth/AuthContext";
 
 export default function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
-  if (loading) return <div className="p-6 text-slate-200">Loading…</div>;
+  if (loading) {
+    return (
+      <div className="grid h-full place-items-center px-6" role="status">
+        <p className="text-label text-fg-muted">Loading your chats…</p>
+      </div>
+    );
+  }
   if (!user) return <Navigate to="/signup" replace />;
   return children;
 }
-

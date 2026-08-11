@@ -26,7 +26,7 @@ export default function LoginPage() {
       await login({ emailOrUsername, password });
       nav("/", { replace: true });
     } catch (err) {
-      setError(err.message || "Login failed");
+      setError(err.message || "We couldn't log you in. Check your details and try again.");
     } finally {
       setSubmitting(false);
     }
@@ -35,7 +35,7 @@ export default function LoginPage() {
   return (
     <AuthPageLayout
       title="Welcome back"
-      subtitle="Sign in to pick up where you left off in your conversations."
+      subtitle="Log in to carry on your chats."
     >
       <form onSubmit={onSubmit} className="space-y-5" noValidate>
         <AuthField
@@ -45,7 +45,7 @@ export default function LoginPage() {
           onChange={(e) => setEmailOrUsername(e.target.value)}
           autoComplete="username"
           autoFocus
-          placeholder="you@email.com or handle"
+          placeholder="you@email.com or john"
         />
 
         <PasswordField
@@ -53,7 +53,7 @@ export default function LoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           autoComplete="current-password"
-          placeholder="••••••••"
+          placeholder="Your password"
         />
 
         {error ? (
@@ -62,14 +62,14 @@ export default function LoginPage() {
           </div>
         ) : null}
 
-        <SubmitButton loading={submitting} loadingText="Signing in…">
-          Sign in
+        <SubmitButton loading={submitting} loadingText="Logging in…">
+          Log in
         </SubmitButton>
 
-        <p className="border-t border-slate-800/80 pt-6 text-center text-sm text-slate-500">
-          Don’t have an account?{" "}
+        <p className="border-t border-line pt-5 text-center text-label text-fg-muted">
+          New here?{" "}
           <Link className={footerLinkClass} to="/signup">
-            Create one
+            Create an account
           </Link>
         </p>
       </form>

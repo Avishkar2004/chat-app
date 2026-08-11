@@ -3,263 +3,242 @@
 @tailwind utilities;
 
 /* -------------------------------------------------------------------------- */
-/*  Theme tokens                                                               */
-/*  Components keep using Tailwind class names like `bg-slate-950`,            */
-/*  `text-indigo-200`, etc. The values are remapped per theme via these vars. */
+/*  Theme tokens — three modes only: Light, Dark, System.                       */
+/*                                                                             */
+/*  Light is the base palette on `:root`. Dark overrides the same token names   */
+/*  in two places:                                                             */
+/*    1. `@media (prefers-color-scheme: dark)` → the "System" option            */
+/*    2. `[data-theme="dark"]`                → the explicit "Dark" option      */
+/*  An explicit `[data-theme="light"]` opts out of the media query.             */
+/*                                                                             */
+/*  Tokens are SEMANTIC (canvas / surface / fg / accent), not a colour ramp.    */
+/*  Components must never hardcode hex values — use the Tailwind class that     */
+/*  reads the token, e.g. `bg-surface`, `text-fg-muted`, `border-line`.         */
+/*  Values are space-separated RGB channels so Tailwind can apply opacity.      */
 /* -------------------------------------------------------------------------- */
 
-:root,
-[data-theme="midnight"] {
-  color-scheme: dark;
-
-  --c-slate-50: 248 250 252;
-  --c-slate-100: 241 245 249;
-  --c-slate-200: 226 232 240;
-  --c-slate-300: 203 213 225;
-  --c-slate-400: 148 163 184;
-  --c-slate-500: 100 116 139;
-  --c-slate-600: 71 85 105;
-  --c-slate-700: 51 65 85;
-  --c-slate-800: 30 41 59;
-  --c-slate-900: 15 23 42;
-  --c-slate-950: 2 6 23;
-
-  --c-indigo-200: 199 210 254;
-  --c-indigo-300: 165 180 252;
-  --c-indigo-400: 129 140 248;
-  --c-indigo-500: 99 102 241;
-  --c-indigo-600: 79 70 229;
-
-  --c-fuchsia-500: 217 70 239;
-  --c-fuchsia-600: 192 38 211;
-
-  --c-emerald-400: 52 211 153;
-  --c-emerald-500: 16 185 129;
-  --c-emerald-600: 5 150 105;
-
-  --c-rose-100: 255 228 230;
-  --c-rose-500: 244 63 94;
-  --c-rose-950: 76 5 25;
-
-  --c-blob-1: 99 102 241;
-  --c-blob-2: 192 38 211;
-  --c-glow: 99 102 241;
-}
-
-[data-theme="ocean"] {
-  color-scheme: dark;
-
-  --c-slate-50: 240 253 255;
-  --c-slate-100: 224 247 252;
-  --c-slate-200: 186 230 253;
-  --c-slate-300: 148 196 220;
-  --c-slate-400: 100 150 180;
-  --c-slate-500: 60 110 140;
-  --c-slate-600: 40 80 110;
-  --c-slate-700: 22 56 84;
-  --c-slate-800: 12 38 60;
-  --c-slate-900: 6 24 40;
-  --c-slate-950: 2 12 24;
-
-  --c-indigo-200: 165 243 252;
-  --c-indigo-300: 103 232 249;
-  --c-indigo-400: 34 211 238;
-  --c-indigo-500: 6 182 212;
-  --c-indigo-600: 8 145 178;
-
-  --c-fuchsia-500: 20 184 166;
-  --c-fuchsia-600: 13 148 136;
-
-  --c-emerald-400: 52 211 153;
-  --c-emerald-500: 16 185 129;
-  --c-emerald-600: 5 150 105;
-
-  --c-rose-100: 255 228 230;
-  --c-rose-500: 244 63 94;
-  --c-rose-950: 76 5 25;
-
-  --c-blob-1: 6 182 212;
-  --c-blob-2: 20 184 166;
-  --c-glow: 34 211 238;
-}
-
-[data-theme="forest"] {
-  color-scheme: dark;
-
-  --c-slate-50: 240 253 244;
-  --c-slate-100: 220 252 231;
-  --c-slate-200: 187 247 208;
-  --c-slate-300: 134 200 160;
-  --c-slate-400: 90 150 110;
-  --c-slate-500: 60 110 80;
-  --c-slate-600: 40 80 55;
-  --c-slate-700: 25 55 35;
-  --c-slate-800: 15 38 24;
-  --c-slate-900: 8 24 14;
-  --c-slate-950: 3 14 8;
-
-  --c-indigo-200: 167 243 208;
-  --c-indigo-300: 110 231 183;
-  --c-indigo-400: 52 211 153;
-  --c-indigo-500: 16 185 129;
-  --c-indigo-600: 5 150 105;
-
-  --c-fuchsia-500: 132 204 22;
-  --c-fuchsia-600: 101 163 13;
-
-  --c-emerald-400: 52 211 153;
-  --c-emerald-500: 16 185 129;
-  --c-emerald-600: 5 150 105;
-
-  --c-rose-100: 255 228 230;
-  --c-rose-500: 244 63 94;
-  --c-rose-950: 76 5 25;
-
-  --c-blob-1: 16 185 129;
-  --c-blob-2: 132 204 22;
-  --c-glow: 52 211 153;
-}
-
-[data-theme="sunset"] {
-  color-scheme: dark;
-
-  --c-slate-50: 254 252 232;
-  --c-slate-100: 254 240 220;
-  --c-slate-200: 240 220 196;
-  --c-slate-300: 200 180 156;
-  --c-slate-400: 150 130 110;
-  --c-slate-500: 110 90 75;
-  --c-slate-600: 75 60 50;
-  --c-slate-700: 55 42 32;
-  --c-slate-800: 38 28 22;
-  --c-slate-900: 24 18 14;
-  --c-slate-950: 14 10 8;
-
-  --c-indigo-200: 254 215 170;
-  --c-indigo-300: 253 186 116;
-  --c-indigo-400: 251 146 60;
-  --c-indigo-500: 249 115 22;
-  --c-indigo-600: 234 88 12;
-
-  --c-fuchsia-500: 244 63 94;
-  --c-fuchsia-600: 225 29 72;
-
-  --c-emerald-400: 52 211 153;
-  --c-emerald-500: 16 185 129;
-  --c-emerald-600: 5 150 105;
-
-  --c-rose-100: 255 228 230;
-  --c-rose-500: 244 63 94;
-  --c-rose-950: 76 5 25;
-
-  --c-blob-1: 249 115 22;
-  --c-blob-2: 244 63 94;
-  --c-glow: 251 146 60;
-}
-
-[data-theme="whatsapp"] {
-  color-scheme: dark;
-
-  --c-slate-50: 255 255 255;
-  --c-slate-100: 233 237 239;
-  --c-slate-200: 209 215 219;
-  --c-slate-300: 174 186 193;
-  --c-slate-400: 134 150 160;
-  --c-slate-500: 105 121 132;
-  --c-slate-600: 55 66 72;
-  --c-slate-700: 42 57 66;
-  --c-slate-800: 32 44 51;
-  --c-slate-900: 17 27 33;
-  --c-slate-950: 11 20 26;
-
-  --c-indigo-200: 6 207 156;
-  --c-indigo-300: 0 168 132;
-  --c-indigo-400: 0 168 132;
-  --c-indigo-500: 0 168 132;
-  --c-indigo-600: 0 128 105;
-
-  --c-fuchsia-500: 6 207 156;
-  --c-fuchsia-600: 0 168 132;
-
-  --c-emerald-400: 6 207 156;
-  --c-emerald-500: 0 168 132;
-  --c-emerald-600: 0 128 105;
-
-  --c-rose-100: 255 228 230;
-  --c-rose-500: 244 63 94;
-  --c-rose-950: 76 5 25;
-
-  --c-blob-1: 0 168 132;
-  --c-blob-2: 0 128 105;
-  --c-glow: 0 168 132;
-}
-
-[data-theme="daylight"] {
+:root {
   color-scheme: light;
 
-  /* Slate inverted so `bg-slate-950` is light and `text-slate-100` is dark. */
-  --c-slate-50: 30 41 59;
-  --c-slate-100: 15 23 42;
-  --c-slate-200: 30 41 59;
-  --c-slate-300: 51 65 85;
-  --c-slate-400: 71 85 105;
-  --c-slate-500: 100 116 139;
-  --c-slate-600: 148 163 184;
-  --c-slate-700: 203 213 225;
-  --c-slate-800: 226 232 240;
-  --c-slate-900: 241 245 249;
-  --c-slate-950: 248 250 252;
+  /* Surfaces: canvas is the page, surface is a panel, 2/3 are raised steps. */
+  --c-canvas: 239 241 245;
+  --c-surface: 255 255 255;
+  --c-surface-2: 241 243 247;
+  --c-surface-3: 229 233 240;
 
-  /* Indigo: lighter shades flipped to darker (for text on light tints);
-     500/600 stay vivid for solid buttons. */
-  --c-indigo-200: 49 46 129;
-  --c-indigo-300: 67 56 202;
-  --c-indigo-400: 79 70 229;
-  --c-indigo-500: 99 102 241;
-  --c-indigo-600: 79 70 229;
+  /* Hairlines. */
+  --c-line: 217 222 231;
+  --c-line-strong: 197 204 216;
 
-  --c-fuchsia-500: 217 70 239;
-  --c-fuchsia-600: 162 28 175;
+  /* Text on canvas: fg 15.7:1, fg-muted 7.0:1, fg-subtle 5.3:1. */
+  --c-fg: 22 24 29;
+  --c-fg-muted: 74 81 94;
+  --c-fg-subtle: 92 100 115;
+  --c-fg-inverted: 255 255 255;
 
-  --c-emerald-400: 5 150 105;
-  --c-emerald-500: 5 150 105;
-  --c-emerald-600: 4 120 87;
+  /* Primary action. White on accent = 4.7:1. accent-text on canvas = 5.7:1. */
+  --c-accent: 37 99 235;
+  --c-accent-hover: 29 78 216;
+  --c-accent-fg: 255 255 255;
+  --c-accent-soft: 226 236 254;
+  --c-accent-text: 29 78 216;
 
-  --c-rose-100: 159 18 57;
-  --c-rose-500: 225 29 72;
-  --c-rose-950: 255 228 230;
+  /* Positive: online, delivered/read. positive-text on canvas = 5.7:1. */
+  --c-positive: 5 150 105;
+  --c-positive-soft: 219 243 231;
+  --c-positive-text: 4 108 78;
 
-  --c-blob-1: 165 180 252;
-  --c-blob-2: 232 121 249;
-  --c-glow: 165 180 252;
+  /* Danger: errors, remove, log out. White on danger = 4.8:1,
+     danger-text on canvas = 5.7:1. */
+  --c-danger: 220 38 38;
+  --c-danger-soft: 253 232 232;
+  --c-danger-text: 185 28 28;
+
+  /* Warning: reconnecting. warning-text on canvas = 5.4:1. */
+  --c-warning: 217 119 6;
+  --c-warning-soft: 253 240 214;
+  --c-warning-text: 154 77 6;
+
+  /* Message bubbles. bubble-out is a step darker than the accent so the white
+     timestamp inside it still clears 4.5:1 at 80% opacity. */
+  --c-bubble-in: 255 255 255;
+  --c-bubble-in-fg: 22 24 29;
+  --c-bubble-out: 29 78 216;
+  --c-bubble-out-fg: 255 255 255;
+
+  /* Focus ring — same token in both modes so the ring is never invisible. */
+  --c-focus: 29 78 216;
+}
+
+/* "System" resolves to dark unless the user explicitly picked Light. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --c-canvas: 15 17 21;
+    --c-surface: 23 26 32;
+    --c-surface-2: 30 34 42;
+    --c-surface-3: 39 44 54;
+
+    --c-line: 42 47 57;
+    --c-line-strong: 58 65 78;
+
+    /* Text on canvas: fg 15.9:1, fg-muted 8.6:1, fg-subtle 5.5:1. */
+    --c-fg: 232 234 238;
+    --c-fg-muted: 168 175 189;
+    --c-fg-subtle: 131 139 154;
+    --c-fg-inverted: 15 17 21;
+
+    --c-accent: 37 99 235;
+    --c-accent-hover: 59 130 246;
+    --c-accent-fg: 255 255 255;
+    --c-accent-soft: 27 39 64;
+    --c-accent-text: 147 180 253;
+
+    --c-positive: 16 185 129;
+    --c-positive-soft: 16 43 36;
+    --c-positive-text: 110 231 183;
+
+    --c-danger: 220 38 38;
+    --c-danger-soft: 55 24 26;
+    --c-danger-text: 252 165 165;
+
+    --c-warning: 217 119 6;
+    --c-warning-soft: 51 40 15;
+    --c-warning-text: 252 211 77;
+
+    --c-bubble-in: 30 34 42;
+    --c-bubble-in-fg: 232 234 238;
+    --c-bubble-out: 29 78 216;
+    --c-bubble-out-fg: 255 255 255;
+
+    --c-focus: 147 180 253;
+  }
+}
+
+/* Explicit Dark wins even when the OS prefers light. */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --c-canvas: 15 17 21;
+  --c-surface: 23 26 32;
+  --c-surface-2: 30 34 42;
+  --c-surface-3: 39 44 54;
+
+  --c-line: 42 47 57;
+  --c-line-strong: 58 65 78;
+
+  --c-fg: 232 234 238;
+  --c-fg-muted: 168 175 189;
+  --c-fg-subtle: 131 139 154;
+  --c-fg-inverted: 15 17 21;
+
+  --c-accent: 37 99 235;
+  --c-accent-hover: 59 130 246;
+  --c-accent-fg: 255 255 255;
+  --c-accent-soft: 27 39 64;
+  --c-accent-text: 147 180 253;
+
+  --c-positive: 16 185 129;
+  --c-positive-soft: 16 43 36;
+  --c-positive-text: 110 231 183;
+
+  --c-danger: 220 38 38;
+  --c-danger-soft: 55 24 26;
+  --c-danger-text: 252 165 165;
+
+  --c-warning: 217 119 6;
+  --c-warning-soft: 51 40 15;
+  --c-warning-text: 252 211 77;
+
+  --c-bubble-in: 30 34 42;
+  --c-bubble-in-fg: 232 234 238;
+  --c-bubble-out: 29 78 216;
+  --c-bubble-out-fg: 255 255 255;
+
+  --c-focus: 147 180 253;
 }
 
 @layer base {
+  html {
+    /* Keeps the composer above the on-screen keyboard on mobile. */
+    height: 100%;
+  }
+
   body {
-    @apply bg-slate-950 text-slate-100 antialiased;
+    @apply bg-canvas text-fg antialiased;
+    min-height: 100%;
+    /* Nothing may scroll the page sideways at 360px. */
+    overflow-x: hidden;
+  }
+
+  /* Rule 8: a visible focus ring on every interactive element. */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid rgb(var(--c-focus));
+    outline-offset: 2px;
+    border-radius: 0.375rem;
   }
 }
 
 @layer utilities {
-  .scrollbar-thin {
-    scrollbar-width: thin;
+  /* One viewport tall, using the dynamic viewport where it exists so the
+     composer is not pushed under a phone's on-screen keyboard. */
+  .h-screen-dvh {
+    height: 100vh;
+    height: 100dvh;
   }
-  .scrollbar-thumb-slate {
-    scrollbar-color: rgb(var(--c-slate-700) / 0.9) transparent;
+
+  .scrollbar-slim {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--c-line-strong)) transparent;
+  }
+  .scrollbar-slim::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .scrollbar-slim::-webkit-scrollbar-thumb {
+    background-color: rgb(var(--c-line-strong));
+    border-radius: 9999px;
+  }
+  .scrollbar-slim::-webkit-scrollbar-track {
+    background: transparent;
   }
 
   @keyframes send-pop {
     0% {
       opacity: 0;
-      transform: scale(0.92);
+      transform: translateY(2px);
     }
     100% {
       opacity: 1;
-      transform: scale(1);
+      transform: translateY(0);
     }
   }
 
   .animate-send-pop {
-    animation: send-pop 140ms ease-out;
+    animation: send-pop 120ms ease-out;
+  }
+
+  /* Phone only: opening a chat slides the conversation in over the list. */
+  @keyframes slide-in {
+    from {
+      transform: translateX(12%);
+      opacity: 0.6;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-in {
+    animation: slide-in 180ms ease-out;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-send-pop,
+    .animate-slide-in {
+      animation: none;
+    }
   }
 }

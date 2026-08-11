@@ -1,14 +1,35 @@
 import React from "react";
 
-/** Two-column chat shell: sidebar + main conversation panel. */
-export default function ChatLayout({ sidebar, children }) {
+/**
+ * The chat frame.
+ *
+ * Phone (under 768px): one thing at a time. The chat list fills the screen;
+ * opening a chat slides the conversation in over it, and the header's back
+ * arrow slides it away again.
+ *
+ * Tablet and up (`md:`): both columns side by side, list on the left.
+ */
+export default function ChatLayout({ sidebar, conversation, showConversation }) {
   return (
-    <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
-      <aside className="rounded-2xl border border-slate-800/80 bg-slate-900/40 p-4 backdrop-blur">
+    <div className="mx-auto flex h-full w-full max-w-6xl overflow-hidden md:gap-3 md:p-3">
+      <aside
+        aria-label="Your chats"
+        className={[
+          "min-w-0 flex-col overflow-hidden border-line bg-surface md:flex md:w-[20rem] md:flex-none md:rounded-xl md:border",
+          showConversation ? "hidden" : "flex w-full",
+        ].join(" ")}
+      >
         {sidebar}
       </aside>
-      <section className="overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900/40 backdrop-blur">
-        {children}
+
+      <section
+        aria-label="Conversation"
+        className={[
+          "min-w-0 flex-col overflow-hidden border-line bg-surface md:flex md:flex-1 md:rounded-xl md:border",
+          showConversation ? "flex w-full animate-slide-in md:animate-none" : "hidden",
+        ].join(" ")}
+      >
+        {conversation}
       </section>
     </div>
   );

@@ -6,40 +6,65 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        slate: {
-          50: withVar("slate-50"),
-          100: withVar("slate-100"),
-          200: withVar("slate-200"),
-          300: withVar("slate-300"),
-          400: withVar("slate-400"),
-          500: withVar("slate-500"),
-          600: withVar("slate-600"),
-          700: withVar("slate-700"),
-          800: withVar("slate-800"),
-          900: withVar("slate-900"),
-          950: withVar("slate-950"),
+        /* ---- Semantic tokens. Use these. ------------------------------- */
+        canvas: withVar("canvas"),
+        surface: {
+          DEFAULT: withVar("surface"),
+          2: withVar("surface-2"),
+          3: withVar("surface-3"),
         },
-        indigo: {
-          200: withVar("indigo-200"),
-          300: withVar("indigo-300"),
-          400: withVar("indigo-400"),
-          500: withVar("indigo-500"),
-          600: withVar("indigo-600"),
+        line: {
+          DEFAULT: withVar("line"),
+          strong: withVar("line-strong"),
         },
-        fuchsia: {
-          500: withVar("fuchsia-500"),
-          600: withVar("fuchsia-600"),
+        fg: {
+          DEFAULT: withVar("fg"),
+          muted: withVar("fg-muted"),
+          subtle: withVar("fg-subtle"),
+          inverted: withVar("fg-inverted"),
         },
-        emerald: {
-          400: withVar("emerald-400"),
-          500: withVar("emerald-500"),
-          600: withVar("emerald-600"),
+        accent: {
+          DEFAULT: withVar("accent"),
+          hover: withVar("accent-hover"),
+          fg: withVar("accent-fg"),
+          soft: withVar("accent-soft"),
+          text: withVar("accent-text"),
         },
-        rose: {
-          100: withVar("rose-100"),
-          500: withVar("rose-500"),
-          950: withVar("rose-950"),
+        positive: {
+          DEFAULT: withVar("positive"),
+          soft: withVar("positive-soft"),
+          text: withVar("positive-text"),
         },
+        danger: {
+          DEFAULT: withVar("danger"),
+          soft: withVar("danger-soft"),
+          text: withVar("danger-text"),
+        },
+        warning: {
+          DEFAULT: withVar("warning"),
+          soft: withVar("warning-soft"),
+          text: withVar("warning-text"),
+        },
+        bubble: {
+          in: withVar("bubble-in"),
+          "in-fg": withVar("bubble-in-fg"),
+          out: withVar("bubble-out"),
+          "out-fg": withVar("bubble-out-fg"),
+        },
+        focus: withVar("focus"),
+      },
+
+      /* Rule 7: message text never below 15px, metadata never below 12px
+         and never the same weight as the message. */
+      fontSize: {
+        meta: ["0.75rem", { lineHeight: "1rem" }],
+        label: ["0.8125rem", { lineHeight: "1.125rem" }],
+        msg: ["0.9375rem", { lineHeight: "1.5" }],
+      },
+
+      /* Rule 7: cap the message column near 65 characters. */
+      maxWidth: {
+        msg: "65ch",
       },
     },
   },
