@@ -10,6 +10,7 @@ import { useAutoScroll } from "../hooks/useAutoScroll";
 import { useDmChat } from "../hooks/useDmChat";
 import { useFriends } from "../hooks/useFriends";
 import { useMessageComposer } from "../hooks/useMessageComposer";
+import { usePresence } from "../hooks/usePresence";
 import { useRoomChat } from "../hooks/useRoomChat";
 import { useSocket } from "../hooks/useSocket";
 
@@ -26,6 +27,7 @@ export default function ChatPage() {
   const { socketRef, connected } = useSocket();
 
   const friends = useFriends();
+  const presence = usePresence({ socketRef, friends: friends.state.friends });
   const dmChat = useDmChat({
     socketRef,
     username: user?.username,
@@ -127,6 +129,7 @@ export default function ChatPage() {
                 }
                 selectedFriend={friends.selectedFriend}
                 onSelectFriend={openFriend}
+                presence={presence}
               />
             ) : (
               <RoomsSidebar
@@ -141,6 +144,7 @@ export default function ChatPage() {
           isDirect ? (
             <FriendsChat
               friend={friends.selectedFriend}
+              presence={presence[friends.selectedFriend?.username]}
               myUsername={user?.username}
               connected={connected}
               messages={dmChat.messages}

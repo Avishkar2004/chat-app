@@ -12,6 +12,7 @@ export default function ChatPanelHeader({
   title,
   subtitle,
   avatarName,
+  avatarOnline,
   isGroup = false,
   connected,
   onBack,
@@ -34,7 +35,7 @@ export default function ChatPanelHeader({
           <UsersIcon className="h-5 w-5" />
         </span>
       ) : avatarName ? (
-        <Avatar name={avatarName} size="md" />
+        <Avatar name={avatarName} size="md" online={avatarOnline} />
       ) : null}
 
       <div className="min-w-0 flex-1">

@@ -23,6 +23,10 @@ const userSchema = new mongoose.Schema(
       select: false,
     },
 
+    // Stamped when the user's last socket closes, so friends can be told
+    // "last seen 5 minutes ago" instead of just "offline".
+    lastSeenAt: { type: Date, default: null },
+
     friends: [{ type: mongoose.Schema.Types.ObjectId, ref: "User", default: [] }],
     friendRequestsIncoming: [
       { type: mongoose.Schema.Types.ObjectId, ref: "User", default: [] },

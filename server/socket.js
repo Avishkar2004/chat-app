@@ -9,6 +9,38 @@ import {
   saveRoomMessage,
 } from "./services/messages.js";
 import { loadFriendPair, parseCookies } from "./socket/helpers.js";
+import {
+  addPresenceConnection,
+  isUserOnline,
+  removePresenceConnection,
+} from "./socket/presence.js";
+
+/** Every socket a user has open joins this room, so we can reach all their tabs. */
+const userRoom = (userId) => `user:${userId}`;
+
+/** Tell someone's friends that they came online or went offline. */
+function broadcastPresence(io, friendIds, payload) {
+  for (const friendId of friendIds || []) {
+    io.to(userRoom(friendId)).emit("presence", payload);
+  }
+}
+
+/** Send one socket the current status of everyone on its friends list. */
+async function sendPresenceSnapshot(socket, friendIds) {
+  const friends = await User.find({ _id: { $in: friendIds || [] } }).select(
+    "_id username lastSeenAt",
+  );
+  socket.emit("presenceSnapshot", {
+    users: friends.map((friend) => {
+      const online = isUserOnline(friend._id);
+      return {
+        username: friend.username,
+        online,
+        lastSeenAt: online ? null : friend.lastSeenAt || null,
+      };
+    }),
+  });
+}
 
 function attachmentFromPayload(attachment) {
   const url = attachment?.url ? String(attachment.url).trim() : "";
@@ -29,6 +61,8 @@ export function initSocket(httpServer, { corsOrigin }) {
     socket.data.username = null;
     socket.data.roomId = null;
     socket.data.dmRoomId = null;
+    socket.data.friendIds = [];
+    socket.data.presenceCounted = false;
 
     try {
       const cookies = parseCookies(socket.handshake.headers?.cookie);
@@ -41,6 +75,50 @@ export function initSocket(httpServer, { corsOrigin }) {
     } catch {
       // unauthenticated socket
     }
+
+    async function goOnline() {
+      const me = await User.findById(socket.data.userId).select(
+        "_id username friends",
+      );
+      // The socket can drop while that query is in flight. Counting it now
+      // would leave the user online forever, because the disconnect handler
+      // has already run and found nothing to decrement.
+      if (!me || !socket.connected) return;
+
+      socket.data.username = me.username;
+      socket.data.friendIds = (me.friends || []).map(String);
+      socket.data.presenceCounted = true;
+      socket.join(userRoom(me._id));
+
+      if (addPresenceConnection(me._id)) {
+        broadcastPresence(io, socket.data.friendIds, {
+          username: me.username,
+          online: true,
+          lastSeenAt: null,
+        });
+      }
+
+      await sendPresenceSnapshot(socket, socket.data.friendIds);
+    }
+
+    if (socket.data.userId) {
+      goOnline().catch(() => {
+        // Presence is best effort — the rest of the socket still works.
+      });
+    }
+
+    // Accepting or removing a friend changes who this socket cares about.
+    socket.on("presenceSync", async () => {
+      if (!socket.data.userId) return;
+      try {
+        const me = await User.findById(socket.data.userId).select("friends");
+        if (!me) return;
+        socket.data.friendIds = (me.friends || []).map(String);
+        await sendPresenceSnapshot(socket, socket.data.friendIds);
+      } catch {
+        // ignore
+      }
+    });
 
     socket.on("joinRoom", async ({ roomId } = {}) => {
       const safeRoomId = String(roomId || "").trim();
@@ -178,11 +256,23 @@ export function initSocket(httpServer, { corsOrigin }) {
       }
     });
 
-    socket.on("disconnect", () => {
-      const { roomId, username } = socket.data;
+    socket.on("disconnect", async () => {
+      const { roomId, username, userId, friendIds } = socket.data;
       if (roomId && username) {
         io.to(roomId).emit("userLeft", { roomId, username });
       }
+
+      // Only the last tab going means the person actually left.
+      if (!socket.data.presenceCounted) return;
+      if (!removePresenceConnection(userId)) return;
+
+      const lastSeenAt = new Date();
+      try {
+        await User.updateOne({ _id: userId }, { $set: { lastSeenAt } });
+      } catch {
+        // ignore
+      }
+      broadcastPresence(io, friendIds, { username, online: false, lastSeenAt });
     });
   });
 

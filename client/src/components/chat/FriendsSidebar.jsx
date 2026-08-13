@@ -3,6 +3,7 @@ import Avatar from "../ui/Avatar";
 import Button, { IconButton } from "../ui/Button";
 import EmptyState from "./EmptyState";
 import { CheckIcon, ChatIcon, CloseIcon, TrashIcon, UserPlusIcon } from "../ui/icons";
+import { presenceText } from "../../lib/format";
 import { displayHandle } from "../../lib/usernames";
 
 /**
@@ -30,6 +31,7 @@ export default function FriendsSidebar({
   onRemove,
   selectedFriend,
   onSelectFriend,
+  presence = {},
 }) {
   // Which person is one tap away from being removed (two-step, so nobody
   // deletes a friend by accident).
@@ -195,6 +197,10 @@ export default function FriendsSidebar({
                     {friends.map((f) => {
                       const active = selectedFriend?.username === f.username;
                       const confirming = confirmRemove === f.username;
+                      const here = presence[f.username];
+                      // Before the server has said anything, fall back to the
+                      // old copy rather than claiming someone is offline.
+                      const status = presenceText(here);
 
                       if (confirming) {
                         return (
@@ -245,13 +251,24 @@ export default function FriendsSidebar({
                                 : "border-transparent hover:bg-surface-2",
                             ].join(" ")}
                           >
-                            <Avatar name={f.username} size="sm" />
+                            <Avatar
+                              name={f.username}
+                              size="sm"
+                              online={here?.online}
+                            />
                             <span className="min-w-0 flex-1">
                               <span className="block truncate text-msg font-medium text-fg">
                                 {displayHandle(f.username)}
                               </span>
-                              <span className="block truncate text-meta text-fg-subtle">
-                                {active ? "Open now" : "Tap to open"}
+                              <span
+                                className={[
+                                  "block truncate text-meta",
+                                  here?.online
+                                    ? "text-positive-text"
+                                    : "text-fg-subtle",
+                                ].join(" ")}
+                              >
+                                {status || (active ? "Open now" : "Tap to open")}
                               </span>
                             </span>
                             {active ? (

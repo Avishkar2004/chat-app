@@ -4,6 +4,7 @@ import EmptyState from "../components/chat/EmptyState";
 import MessageComposer from "../components/chat/MessageComposer";
 import MessageList from "../components/chat/MessageList";
 import { ChatIcon } from "../components/ui/icons";
+import { presenceText } from "../lib/format";
 import { displayHandle } from "../lib/usernames";
 
 /**
@@ -13,6 +14,7 @@ import { displayHandle } from "../lib/usernames";
  */
 export default function FriendsChat({
   friend,
+  presence,
   myUsername,
   connected,
   messages,
@@ -34,13 +36,16 @@ export default function FriendsChat({
   }
 
   const name = displayHandle(friend.username);
+  // Where they are beats the privacy note, which only matters the first time.
+  const status = presenceText(presence);
 
   return (
     <>
       <ChatPanelHeader
         title={name}
-        subtitle="Private chat — only the two of you can see this"
+        subtitle={status || "Private chat — only the two of you can see this"}
         avatarName={friend.username}
+        avatarOnline={presence?.online}
         connected={connected}
         onBack={onBack}
       />

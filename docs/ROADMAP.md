@@ -7,19 +7,20 @@ Five gaps, ranked by value.
 
 ## 1. Real online presence
 
-**Status:** not started · **Estimate:** ~45 min
+**Status:** done
 
-The green dot is decorative. `online` is hardcoded `true` in
-[`client/src/components/chat/ChatSidebarHeader.jsx:13`](../client/src/components/chat/ChatSidebarHeader.jsx#L13),
-and the dot itself already exists in
-[`client/src/components/ui/Avatar.jsx:43`](../client/src/components/ui/Avatar.jsx#L43).
-The server tracks no presence at all.
+The green dot on a friend now reflects a real socket.
 
-- Keep a `Map<userId, socketCount>` in [`server/socket.js`](../server/socket.js)
-  (count, not boolean — one user can have several tabs open).
-- Emit `presence` on connect and disconnect to that user's friends.
-- Add `lastSeenAt` to [`server/models/User.js`](../server/models/User.js) so the
-  header can show "last seen 5m ago" when offline.
+- [`server/socket/presence.js`](../server/socket/presence.js) keeps a
+  `Map<userId, socketCount>` — a count, not a boolean, so closing one of three
+  tabs does not mark you offline.
+- Every socket joins a `user:<id>` room, so
+  [`server/socket.js`](../server/socket.js) can push `presence` to all of a
+  friend's tabs. New sockets get a `presenceSnapshot` of the whole friends list;
+  the client re-asks with `presenceSync` when that list changes.
+- `lastSeenAt` on [`server/models/User.js`](../server/models/User.js) is stamped
+  when the last socket closes, and rendered as "Last seen 5 minutes ago" in both
+  the friends list and the conversation header.
 
 ## 2. Unread badges per friend
 
